@@ -235,17 +235,9 @@ npm run build:web
 expo export --platform web
 ```
 
-## 🤝 Katkıda Bulunma
+## 🔒 Özel Proje
 
-1. Fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit edin (`git commit -m 'Add amazing feature'`)
-4. Push edin (`git push origin feature/amazing-feature`)
-5. Pull Request açın
-
-## 📝 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
+Bu repository **özel ve kapalı** bir projedir. Harici katkılar kabul edilmemektedir.
 
 ## 🙏 Teşekkürler
 
