@@ -1,48 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { getAllCharts, deleteChart, StoredChart } from '@/lib/storage';
 import { Trash2 } from 'lucide-react-native';
-
-interface ChartRecord {
-  id: string;
-  user_id: string;
-  name: string;
-  birth_date: string;
-  birth_time: string;
-  birth_location: string;
-  latitude: number;
-  longitude: number;
-  timezone_offset: number;
-  created_at: string;
-}
 
 export default function ChartsScreen() {
   const router = useRouter();
-  const { session } = useAuth();
-  const [charts, setCharts] = useState<ChartRecord[]>([]);
+  const [charts, setCharts] = useState<StoredChart[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  useFocusEffect(() => {
-    loadCharts();
-  });
+  useFocusEffect(
+    useCallback(() => {
+      loadCharts();
+    }, [])
+  );
 
   const loadCharts = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('natal_charts')
-        .select('*')
-        .eq('user_id', session?.user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error(error);
-      } else {
-        setCharts(data || []);
-      }
+      const data = await getAllCharts();
+      setCharts(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -58,13 +36,8 @@ export default function ChartsScreen() {
 
   const handleDeleteChart = async (chartId: string) => {
     try {
-      const { error } = await supabase.from('natal_charts').delete().eq('id', chartId);
-
-      if (error) {
-        alert('Chart silinemedi');
-      } else {
-        setCharts(charts.filter((c) => c.id !== chartId));
-      }
+      await deleteChart(chartId);
+      setCharts(charts.filter((c) => c.id !== chartId));
     } catch (err) {
       alert('Bir hata oluştu');
     }

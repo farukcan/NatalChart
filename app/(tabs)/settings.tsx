@@ -1,34 +1,9 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
 export default function SettingsScreen() {
-  const router = useRouter();
-  const { session, signOut } = useAuth();
-
-  const handleLogout = async () => {
-    if (confirm('Çıkış yapmak istediğinize emin misiniz?')) {
-      await signOut();
-      router.replace('/(auth)/login');
-    }
-  };
-
-  const userEmail = session?.user.email || 'Bilgi yok';
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <Text style={styles.title}>Ayarlar</Text>
-
-      <View style={styles.profileCard}>
-        <View style={styles.profileIcon}>
-          <User size={32} color="#2563eb" />
-        </View>
-        <View style={styles.profileInfo}>
-          <Text style={styles.profileTitle}>Profil</Text>
-          <Text style={styles.profileEmail}>{userEmail}</Text>
-        </View>
-      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Uygulama Hakkında</Text>
@@ -93,11 +68,6 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <LogOut size={20} color="#fff" />
-        <Text style={styles.logoutText}>Çıkış Yap</Text>
-      </TouchableOpacity>
-
       <View style={styles.footer}>
         <Text style={styles.footerText}>© 2025 Natal Chart. Tüm Hakları Saklıdır.</Text>
       </View>
@@ -120,38 +90,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1a1a1a',
     marginBottom: 24,
-  },
-  profileCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  profileIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#f0f9ff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  profileTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 4,
-  },
-  profileEmail: {
-    fontSize: 14,
-    color: '#666',
   },
   section: {
     marginBottom: 24,
@@ -219,21 +157,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#4b5563',
     lineHeight: 18,
-  },
-  logoutButton: {
-    backgroundColor: '#ef4444',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 8,
-    marginTop: 12,
-    gap: 8,
-  },
-  logoutText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
   },
   footer: {
     alignItems: 'center',

@@ -1,11 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react-native';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { session } = useAuth();
 
   const handleNewChart = () => {
     router.push('/(tabs)/new-chart');

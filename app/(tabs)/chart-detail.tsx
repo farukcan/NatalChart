@@ -1,29 +1,16 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { supabase } from '@/lib/supabase';
+import { getChartById, StoredChart } from '@/lib/storage';
 import { NatalChartVisual } from '@/components/NatalChartVisual';
-import { CalculationResult } from '@/lib/chartCalculations';
+import { CalculationResult, calculateChart } from '@/lib/chartCalculations';
 import { ASPECT_TYPES_TR } from '@/lib/astrology';
-import { calculateChart } from '@/lib/chartCalculations';
 import { ChevronLeft } from 'lucide-react-native';
-
-interface ChartRecord {
-  id: string;
-  user_id: string;
-  name: string;
-  birth_date: string;
-  birth_time: string;
-  birth_location: string;
-  latitude: number;
-  longitude: number;
-  timezone_offset: number;
-}
 
 export default function ChartDetailScreen() {
   const { chartId } = useLocalSearchParams();
   const router = useRouter();
-  const [chart, setChart] = useState<ChartRecord | null>(null);
+  const [chart, setChart] = useState<StoredChart | null>(null);
   const [chartData, setChartData] = useState<CalculationResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,24 +28,20 @@ export default function ChartDetailScreen() {
         return;
       }
 
-      const { data: chartData, error: chartError } = await supabase
-        .from('natal_charts')
-        .select('*')
-        .eq('id', chartId)
-        .maybeSingle();
+      const stored = await getChartById(chartId as string);
 
-      if (chartError || !chartData) {
+      if (!stored) {
         setError('Chart yüklenemedi');
         setLoading(false);
         return;
       }
 
-      setChart(chartData);
+      setChart(stored);
 
-      const [year, month, day] = chartData.birth_date.split('-').map(Number);
-      const [hour, minute] = chartData.birth_time.split(':').map(Number);
+      const [year, month, day] = stored.birth_date.split('-').map(Number);
+      const [hour, minute] = stored.birth_time.split(':').map(Number);
 
-      const data = await calculateChart(year, month, day, hour, minute, chartData.latitude, chartData.longitude);
+      const data = await calculateChart(year, month, day, hour, minute, stored.latitude, stored.longitude);
       setChartData(data);
     } catch (err) {
       setError('Bir hata oluştu');
