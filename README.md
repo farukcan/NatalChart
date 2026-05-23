@@ -3,7 +3,7 @@
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.4-blue.svg)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-~54.0.10-black.svg)](https://expo.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-~5.9.2-blue.svg)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-2.58.0-green.svg)](https://supabase.com/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Mobil doğum haritası hesaplama ve görselleştirme uygulaması. Astrolojik hesaplamalar yaparak gezegen pozisyonlarını, evleri ve açları hesaplar ve SVG ile görselleştirir.
 
@@ -13,16 +13,15 @@ Mobil doğum haritası hesaplama ve görselleştirme uygulaması. Astrolojik hes
 - **Ev Sistemi**: Placidus ev sistemi ile 12 ev hesaplama
 - **Açılar**: Gezegenler arası konjünksiyon, sekstil, kare, trigon ve karşıt açıları
 - **SVG Görselleştirme**: Responsive ve etkileşimli doğum haritası grafiği
-- **Kullanıcı Yönetimi**: Supabase ile güvenli kimlik doğrulama
+- **Lokal Depolama**: Haritalar cihazda AsyncStorage ile saklanır, hesap gerekmez
 - **Çoklu Platform**: iOS, Android ve Web desteği
 - **Türkçe Destek**: Burç isimleri ve arayüz Türkçe
 
 ## 🚀 Teknoloji Altyapısı
 
 - **Frontend**: React Native + Expo
-- **Backend**: Supabase (PostgreSQL + Auth)
+- **Depolama**: AsyncStorage (local, hesap gerekmez)
 - **Routing**: Expo Router (File-based routing)
-- **State Management**: React Context API
 - **Styling**: NativeWind (Tailwind CSS)
 - **Icons**: Lucide React Native
 - **Charts**: React Native SVG
@@ -36,7 +35,6 @@ Mobil doğum haritası hesaplama ve görselleştirme uygulaması. Astrolojik hes
 ### Yeni Chart (`/new-chart`)
 - Doğum tarihi, saati ve yeri girişi
 - GPS ile konum alma özelliği
-- Harita entegrasyonu (planlanan)
 
 ### Chart Detayı (`/chart-detail`)
 - Seçilen chart'ın detaylı görünümü
@@ -49,34 +47,23 @@ Mobil doğum haritası hesaplama ve görselleştirme uygulaması. Astrolojik hes
 - Chart düzenleme/silme işlemleri
 
 ### Ayarlar (`/settings`)
-- Profil yönetimi
 - Uygulama tercihleri
-- Hesap ayarları
 
-## 🗄️ Veritabanı Yapısı
+## 🗄️ Lokal Depolama
 
-### `natal_charts`
-Kullanıcıların doğum haritalarını saklar:
-- Temel doğum bilgileri (tarih, saat, konum)
-- Coğrafi koordinatlar ve timezone bilgisi
+Tüm veriler cihazda `AsyncStorage` ile saklanır. `StoredChart` veri yapısı:
 
-### `chart_bodies`
-Gezegen pozisyonlarını saklar:
-- Güneş sistemi cisimleri (Güneş, Ay, gezegenler)
-- Burç ve derece bilgileri
-- Ev pozisyonları
-- Retrograd durumu
-
-### `chart_aspects`
-Gezegenler arası açıları saklar:
-- Açının türü (konjünksiyon, sekstil, vb.)
-- Derece ve orb bilgileri
-- Uygulama durumu
-
-### `chart_houses`
-Astrologik ev bilgilerini saklar:
-- 12 evin burç dağılımı
-- Ev cusp dereceleri
+| Alan | Tip | Açıklama |
+|------|-----|----------|
+| `id` | string | Benzersiz kimlik |
+| `name` | string | Haritanın adı |
+| `birth_date` | string | Doğum tarihi (ISO) |
+| `birth_time` | string | Doğum saati |
+| `birth_location` | string | Doğum yeri adı |
+| `latitude` | number | Enlem |
+| `longitude` | number | Boylam |
+| `timezone_offset` | number | UTC farkı (saat) |
+| `created_at` | string | Oluşturulma zamanı (ISO) |
 
 ## 🔧 Kurulum ve Çalıştırma
 
@@ -85,7 +72,6 @@ Astrologik ev bilgilerini saklar:
 - Node.js 18+
 - npm veya yarn
 - Expo CLI
-- Supabase hesabı
 
 ### 1. Repoyu Klonlayın
 
@@ -100,29 +86,7 @@ cd NatalChart
 npm install
 ```
 
-### 3. Supabase Kurulumu
-
-```bash
-# Supabase CLI'yi yükleyin
-npm install -g supabase
-
-# Supabase projesi başlatın
-supabase init
-
-# Migration'ları çalıştırın
-supabase db push
-```
-
-### 4. Environment Variables
-
-`.env` dosyasını oluşturun:
-
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### 5. Uygulamayı Çalıştırın
+### 3. Uygulamayı Çalıştırın
 
 ```bash
 # Development server
@@ -178,34 +142,27 @@ npm run lint
 ```
 NatalChart/
 ├── app/                    # Expo Router sayfaları
-│   ├── (auth)/            # Kimlik doğrulama ekranları
 │   ├── (tabs)/            # Ana uygulama sekmeleri
 │   └── _layout.tsx        # Ana layout
 ├── components/            # Yeniden kullanılabilir bileşenler
-├── contexts/              # React Context'ler
 ├── hooks/                 # Özel React hook'ları
 ├── lib/                   # Yardımcı fonksiyonlar
 │   ├── astrology.ts       # Astrolojik sabitler ve fonksiyonlar
 │   ├── chartCalculations.ts # Hesaplama algoritmaları
-│   └── supabase.ts        # Supabase konfigürasyonu
-├── supabase/              # Backend konfigürasyonu
-│   ├── functions/         # Edge functions
-│   └── migrations/        # Veritabanı şeması
+│   └── storage.ts         # AsyncStorage CRUD işlemleri
 └── assets/                # Statik dosyalar
 ```
 
 ## 🔐 Güvenlik
 
-- **Row Level Security (RLS)**: Supabase ile kullanıcı bazlı veri erişimi
-- **JWT Authentication**: Güvenli oturum yönetimi
-- **Environment Variables**: Hassas bilgilerin korunması
+- **Lokal Veri**: Tüm veriler yalnızca cihazda saklanır, sunucuya gönderilmez
+- **Hesap Yok**: Kullanıcı kaydı veya kimlik doğrulama gerekmez
 - **Input Validation**: Güvenli veri girişi
 
 ## 🎨 Tasarım İlkeleri
 
 - **Minimalist UI**: Temiz ve kullanıcı dostu arayüz
 - **Responsive Design**: Tüm ekran boyutlarına uyumlu
-- **Accessibility**: Erişilebilirlik standartlarına uygun
 - **Dark/Light Mode**: Sistem temasına uyumlu
 - **Türkçe Yerelleştirme**: Kültürel uyumluluk
 
@@ -228,20 +185,19 @@ eas build --platform android
 ### Web Dağıtımı
 
 ```bash
-# Web build
 npm run build:web
-
-# Static export için
-expo export --platform web
 ```
 
-## 🔒 Özel Proje
+## 🤝 Katkıda Bulunma
 
-Bu repository **özel ve kapalı** bir projedir. Harici katkılar kabul edilmemektedir.
+Katkılar memnuniyetle karşılanır! Detaylar için [CONTRIBUTING.md](CONTRIBUTING.md) dosyasına bakın.
+
+## 📄 Lisans
+
+Bu proje [GNU General Public License v3.0](LICENSE) lisansı altında yayınlanmıştır.
 
 ## 🙏 Teşekkürler
 
-- [Supabase](https://supabase.com/) - Backend as a Service
 - [Expo](https://expo.dev/) - React Native framework
 - [React Native SVG](https://github.com/react-native-svg/react-native-svg) - SVG rendering
 - Astrolojik hesaplamalar için astronomik algoritmalara
