@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { saveChart } from '@/lib/storage';
 import { calculateChart } from '@/lib/chartCalculations';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
+import { TimePicker } from '@/components/TimePicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 import { Colors } from '@/lib/theme';
@@ -32,10 +33,11 @@ export default function NewChartScreen() {
   const insets = useSafeAreaInsets();
   const styles = createStyles(colors);
   const [chartName, setChartName] = useState('');
-  const [birthDateTime, setBirthDateTime] = useState(new Date(1990, 2, 15, 12, 0));
-  const [pickerMode, setPickerMode] = useState<'date' | 'time' | null>(null);
-  // iOS spinner: use ref so onChange doesn't trigger re-renders (which reset the spinner)
-  const iosPickerRef = useRef<Date>(new Date(1990, 2, 15, 12, 0));
+  const [birthDate, setBirthDate] = useState({ year: 1990, month: 3, day: 15 });
+  const [birthHour, setBirthHour] = useState(12);
+  const [birthMinute, setBirthMinute] = useState(0);
+  const [pickerMode, setPickerMode] = useState<'date' | null>(null);
+  const iosDatePickerRef = useRef<Date>(new Date(2020, 0, 1));
 
   const [locationQuery, setLocationQuery] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<NominatimResult[]>([]);
@@ -60,9 +62,9 @@ export default function NewChartScreen() {
   }, [locationQuery, location]);
 
   useEffect(() => {
-    if (!latitude || !longitude) return;
-    fetchTimezone(latitude, longitude, birthDateTime);
-  }, [latitude, longitude, birthDateTime]);
+    if (!latitude || !longitude || pickerMode !== null) return;
+    fetchTimezone(latitude, longitude);
+  }, [latitude, longitude, birthDate, birthHour, birthMinute, pickerMode]);
 
   const searchLocation = async (query: string) => {
     setLocationSearching(true);
@@ -80,14 +82,14 @@ export default function NewChartScreen() {
     }
   };
 
-  const fetchTimezone = async (lat: string, lng: string, dt: Date) => {
+  const fetchTimezone = async (lat: string, lng: string) => {
     setTimezoneLoading(true);
     try {
-      const y = dt.getFullYear();
-      const mo = String(dt.getMonth() + 1).padStart(2, '0');
-      const d = String(dt.getDate()).padStart(2, '0');
-      const h = String(dt.getHours()).padStart(2, '0');
-      const mi = String(dt.getMinutes()).padStart(2, '0');
+      const y = birthDate.year;
+      const mo = String(birthDate.month).padStart(2, '0');
+      const d = String(birthDate.day).padStart(2, '0');
+      const h = String(birthHour).padStart(2, '0');
+      const mi = String(birthMinute).padStart(2, '0');
       const isoLocal = `${y}-${mo}-${d}T${h}:${mi}:00`;
       const url = `https://timezone-api.puhulab.com/timezone?lat=${lat}&lng=${lng}&dt=${encodeURIComponent(isoLocal)}`;
       const response = await fetch(url);
@@ -120,74 +122,51 @@ export default function NewChartScreen() {
     }
   };
 
-  const formatDisplayDate = (d: Date): string => {
+  const formatDisplayDate = (): string => {
+    const d = new Date(birthDate.year, birthDate.month - 1, birthDate.day);
     return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  const formatDisplayTime = (d: Date): string => {
-    const h = String(d.getHours()).padStart(2, '0');
-    const m = String(d.getMinutes()).padStart(2, '0');
-    return `${h}:${m}`;
+  const formatDisplayTime = (): string => {
+    return `${String(birthHour).padStart(2, '0')}:${String(birthMinute).padStart(2, '0')}`;
   };
 
-  const getWebDateValue = (d: Date): string => {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const getWebDateValue = (): string => {
+    return `${birthDate.year}-${String(birthDate.month).padStart(2, '0')}-${String(birthDate.day).padStart(2, '0')}`;
   };
 
-  const getWebTimeValue = (d: Date): string => {
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const getWebTimeValue = (): string => {
+    return `${String(birthHour).padStart(2, '0')}:${String(birthMinute).padStart(2, '0')}`;
   };
 
   const handleWebDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value) return;
     const [y, m, d] = e.target.value.split('-').map(Number);
-    const updated = new Date(birthDateTime);
-    updated.setFullYear(y, m - 1, d);
-    setBirthDateTime(updated);
+    setBirthDate({ year: y, month: m, day: d });
   };
 
   const handleWebTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.value) return;
     const [h, min] = e.target.value.split(':').map(Number);
-    const updated = new Date(birthDateTime);
-    updated.setHours(h, min);
-    setBirthDateTime(updated);
+    setBirthHour(h);
+    setBirthMinute(min);
   };
 
   const handlePickerChange = (_: DateTimePickerEvent, selected?: Date) => {
     if (Platform.OS === 'android') {
       setPickerMode(null);
       if (selected) {
-        if (pickerMode === 'time') {
-          // Only apply hours/minutes to avoid date clobbering
-          const updated = new Date(birthDateTime);
-          updated.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
-          setBirthDateTime(updated);
-        } else {
-          const updated = new Date(selected);
-          updated.setHours(birthDateTime.getHours(), birthDateTime.getMinutes(), 0, 0);
-          setBirthDateTime(updated);
-        }
+        setBirthDate({ year: selected.getFullYear(), month: selected.getMonth() + 1, day: selected.getDate() });
       }
     } else {
-      // iOS spinner: write to ref only — no state update, no re-render, spinner stays stable
-      if (selected) iosPickerRef.current = selected;
+      // iOS spinner: write to ref only, commit on "Tamam"
+      if (selected) iosDatePickerRef.current = selected;
     }
   };
 
   const handleIOSDone = () => {
-    const picked = iosPickerRef.current;
-    if (pickerMode === 'time') {
-      // Only apply hours/minutes — ref uses today's date to avoid historical timezone issues
-      const updated = new Date(birthDateTime);
-      updated.setHours(picked.getHours(), picked.getMinutes(), 0, 0);
-      setBirthDateTime(updated);
-    } else {
-      // Only apply date — preserve existing time
-      const updated = new Date(picked);
-      updated.setHours(birthDateTime.getHours(), birthDateTime.getMinutes(), 0, 0);
-      setBirthDateTime(updated);
-    }
+    const picked = iosDatePickerRef.current;
+    setBirthDate({ year: picked.getFullYear(), month: picked.getMonth() + 1, day: picked.getDate() });
     setPickerMode(null);
   };
 
@@ -210,11 +189,11 @@ export default function NewChartScreen() {
     setLoading(true);
 
     try {
-      const year = birthDateTime.getFullYear();
-      const month = birthDateTime.getMonth() + 1;
-      const day = birthDateTime.getDate();
-      const hour = birthDateTime.getHours();
-      const minute = birthDateTime.getMinutes();
+      const year = birthDate.year;
+      const month = birthDate.month;
+      const day = birthDate.day;
+      const hour = birthHour;
+      const minute = birthMinute;
       const lat = parseFloat(latitude);
       const lng = parseFloat(longitude);
       const tzOffset = timezoneOffset;
@@ -282,9 +261,9 @@ export default function NewChartScreen() {
             {/* @ts-ignore */}
             <input
               type="date"
-              value={getWebDateValue(birthDateTime)}
+              value={getWebDateValue()}
               min="1900-01-01"
-              max={getWebDateValue(new Date())}
+              max={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`}
               onChange={handleWebDateChange}
               disabled={loading}
               style={webInputStyle}
@@ -293,11 +272,11 @@ export default function NewChartScreen() {
         ) : (
           <TouchableOpacity
             style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}
-            onPress={() => { iosPickerRef.current = birthDateTime; setPickerMode('date'); }}
+            onPress={() => { iosDatePickerRef.current = new Date(birthDate.year, birthDate.month - 1, birthDate.day); setPickerMode('date'); }}
             disabled={loading}
           >
             <Calendar size={18} color={colors.primary} />
-            <Text style={styles.pickerButtonText}>{formatDisplayDate(birthDateTime)}</Text>
+            <Text style={styles.pickerButtonText}>{formatDisplayDate()}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -310,27 +289,22 @@ export default function NewChartScreen() {
             {/* @ts-ignore */}
             <input
               type="time"
-              value={getWebTimeValue(birthDateTime)}
+              value={getWebTimeValue()}
               onChange={handleWebTimeChange}
               disabled={loading}
               style={webInputStyle}
             />
           </View>
         ) : (
-          <TouchableOpacity
-            style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}
-            onPress={() => {
-              // Use today's date to avoid historical timezone conversion issues on iOS
-              const v = new Date();
-              v.setHours(birthDateTime.getHours(), birthDateTime.getMinutes(), 0, 0);
-              iosPickerRef.current = v;
-              setPickerMode('time');
-            }}
-            disabled={loading}
-          >
-            <Clock size={18} color={colors.primary} />
-            <Text style={styles.pickerButtonText}>{formatDisplayTime(birthDateTime)}</Text>
-          </TouchableOpacity>
+          <TimePicker
+            hour={birthHour}
+            minute={birthMinute}
+            onHourChange={setBirthHour}
+            onMinuteChange={setBirthMinute}
+            textColor={colors.text}
+            backgroundColor={colors.surface}
+            borderColor={colors.border}
+          />
         )}
       </View>
 
@@ -400,39 +374,36 @@ export default function NewChartScreen() {
         )}
       </TouchableOpacity>
 
-      {/* Android: native dialog picker */}
-      {Platform.OS === 'android' && pickerMode !== null && (
+      {/* Android: native date picker */}
+      {Platform.OS === 'android' && pickerMode === 'date' && (
         <DateTimePicker
-          value={birthDateTime}
-          mode={pickerMode}
+          value={new Date(birthDate.year, birthDate.month - 1, birthDate.day)}
+          mode="date"
           is24Hour={true}
           onChange={handlePickerChange}
           minimumDate={new Date(1900, 0, 1)}
-          maximumDate={pickerMode === 'date' ? new Date() : undefined}
+          maximumDate={new Date()}
         />
       )}
 
-      {/* iOS: modal with spinner picker */}
-      {Platform.OS === 'ios' && pickerMode !== null && (
+      {/* iOS: modal with spinner picker (date only) */}
+      {Platform.OS === 'ios' && pickerMode === 'date' && (
         <Modal transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>
-                  {pickerMode === 'date' ? 'Doğum Tarihi' : 'Doğum Saati'}
-                </Text>
+                <Text style={styles.modalTitle}>Doğum Tarihi</Text>
                 <TouchableOpacity onPress={handleIOSDone}>
                   <Text style={styles.modalDone}>Tamam</Text>
                 </TouchableOpacity>
               </View>
               <DateTimePicker
-                value={iosPickerRef.current}
-                mode={pickerMode}
+                value={iosDatePickerRef.current}
+                mode="date"
                 display="spinner"
-                is24Hour={true}
                 onChange={handlePickerChange}
-                minimumDate={pickerMode === 'date' ? new Date(1900, 0, 1) : undefined}
-                maximumDate={pickerMode === 'date' ? new Date() : undefined}
+                minimumDate={new Date(1900, 0, 1)}
+                maximumDate={new Date()}
                 locale="tr-TR"
               />
             </View>

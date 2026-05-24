@@ -1,16 +1,29 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme, useThemeControl } from '@/hooks/useTheme';
 import { Colors } from '@/lib/theme';
 
 export default function SettingsScreen() {
   const colors = useTheme();
+  const { isDark, setScheme } = useThemeControl();
   const insets = useSafeAreaInsets();
   const styles = createStyles(colors);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingTop: 16 + insets.top }]}>
       <Text style={styles.title}>Ayarlar</Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Görünüm</Text>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoLabel}>Dark Mode</Text>
+          <Switch
+            value={isDark}
+            onValueChange={(v) => setScheme(v ? 'dark' : 'light')}
+            trackColor={{ false: colors.border, true: colors.primary }}
+          />
+        </View>
+      </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Uygulama Hakkında</Text>
