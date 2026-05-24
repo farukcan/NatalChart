@@ -1,14 +1,16 @@
 import React, { ReactElement } from 'react';
 import { View, Dimensions } from 'react-native';
-import Svg, { Circle, Path, Text as SvgText, Line, G } from 'react-native-svg';
-import { ZODIAC_SIGNS, ZODIAC_SYMBOLS, PLANETARY_SYMBOLS } from '@/lib/astrology';
-import { CalculationResult, BodyPosition } from '@/lib/chartCalculations';
+import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
+import { ZODIAC_SYMBOLS, PLANETARY_SYMBOLS } from '@/lib/astrology';
+import { CalculationResult } from '@/lib/chartCalculations';
+import { useTheme } from '@/hooks/useTheme';
 
 interface NatalChartVisualProps {
   chartData: CalculationResult;
 }
 
 export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
+  const colors = useTheme();
   const size = Math.min(Dimensions.get('window').width - 40, 400);
   const center = size / 2;
   const radius = size / 2 - 20;
@@ -31,7 +33,6 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
     for (let i = 0; i < 12; i++) {
       const startDegrees = i * 30;
       const startAngle = degreesToRadians(startDegrees);
-
       const zodiacSymbolPos = polarToCartesian(degreesToRadians(startDegrees + 15), signRadius + 20);
 
       elements.push(
@@ -41,7 +42,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           y1={center}
           x2={polarToCartesian(startAngle, radius).x}
           y2={polarToCartesian(startAngle, radius).y}
-          stroke="#d1d5db"
+          stroke={colors.chartSubStroke}
           strokeWidth="1"
         />
       );
@@ -54,7 +55,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           fontSize="16"
           fontWeight="bold"
           textAnchor="middle"
-          fill="#4b5563"
+          fill={colors.chartText}
         >
           {ZODIAC_SYMBOLS[i]}
         </SvgText>
@@ -85,7 +86,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           y1={innerPos.y}
           x2={outerPos.x}
           y2={outerPos.y}
-          stroke="#9ca3af"
+          stroke={colors.chartStroke}
           strokeWidth="1"
           opacity={0.5}
         />
@@ -99,7 +100,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           y={labelPos.y - 4}
           fontSize="12"
           textAnchor="middle"
-          fill="#6b7280"
+          fill={colors.chartTextMuted}
         >
           {i}
         </SvgText>
@@ -112,7 +113,6 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
   const drawPlanets = (): ReactElement[] => {
     const elements: ReactElement[] = [];
     const planetRadius = radius - 80;
-
     const mainBodies = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
 
     mainBodies.forEach((bodyName) => {
@@ -121,7 +121,6 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
 
       const angle = degreesToRadians(body.longitude);
       const pos = polarToCartesian(angle, planetRadius);
-
       const symbol = PLANETARY_SYMBOLS[bodyName as keyof typeof PLANETARY_SYMBOLS] || '●';
       const color = getPlanetColor(bodyName);
 
@@ -153,15 +152,12 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
 
       const body1 = chartData.bodies[aspect.body1];
       const body2 = chartData.bodies[aspect.body2];
-
       if (!body1 || !body2) return;
 
       const angle1 = degreesToRadians(body1.longitude);
       const angle2 = degreesToRadians(body2.longitude);
-
       const pos1 = polarToCartesian(angle1, planetRadius);
       const pos2 = polarToCartesian(angle2, planetRadius);
-
       const color = getAspectColor(aspect.type);
 
       elements.push(
@@ -182,43 +178,43 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
   };
 
   const getPlanetColor = (planet: string): string => {
-    const colors: Record<string, string> = {
+    const planetColors: Record<string, string> = {
       Sun: '#FDB813',
-      Moon: '#F5F5DC',
-      Mercury: '#8B7355',
+      Moon: '#c8c8a0',
+      Mercury: '#a09070',
       Venus: '#2ECC71',
       Mars: '#E74C3C',
       Jupiter: '#E67E22',
       Saturn: '#95A5A6',
       Uranus: '#3498DB',
       Neptune: '#9B59B6',
-      Pluto: '#34495E',
+      Pluto: '#7a6a8a',
     };
-    return colors[planet] || '#000000';
+    return planetColors[planet] || colors.chartText;
   };
 
   const getAspectColor = (aspectType: string): string => {
-    const colors: Record<string, string> = {
-      Conjunction: '#FF0000',
-      Sextile: '#FFD700',
-      Square: '#FF8C00',
-      Trine: '#00AA00',
-      Opposition: '#0000FF',
+    const aspectColors: Record<string, string> = {
+      Conjunction: '#e05555',
+      Sextile: '#d4a017',
+      Square: '#e08030',
+      Trine: '#27ae60',
+      Opposition: '#3a7bd5',
     };
-    return colors[aspectType] || '#999999';
+    return aspectColors[aspectType] || colors.chartTextMuted;
   };
 
   return (
     <View style={{ alignItems: 'center', marginVertical: 20 }}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Background circle */}
-        <Circle cx={center} cy={center} r={radius + 10} fill="#ffffff" stroke="#e5e7eb" strokeWidth="1" />
+        <Circle cx={center} cy={center} r={radius + 10} fill={colors.chartBg} stroke={colors.chartBorder} strokeWidth="1" />
 
         {/* Outer circle */}
-        <Circle cx={center} cy={center} r={radius} fill="none" stroke="#9ca3af" strokeWidth="2" />
+        <Circle cx={center} cy={center} r={radius} fill="none" stroke={colors.chartStroke} strokeWidth="2" />
 
-        {/* Inner circles */}
-        <Circle cx={center} cy={center} r={radius - 50} fill="none" stroke="#d1d5db" strokeWidth="1" />
+        {/* Inner circle */}
+        <Circle cx={center} cy={center} r={radius - 50} fill="none" stroke={colors.chartSubStroke} strokeWidth="1" />
 
         {/* Zodiac circle */}
         {drawZodiacCircle()}
@@ -233,7 +229,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
         {drawPlanets()}
 
         {/* Center point */}
-        <Circle cx={center} cy={center} r="3" fill="#1a1a1a" />
+        <Circle cx={center} cy={center} r="3" fill={colors.chartCenter} />
       </Svg>
     </View>
   );

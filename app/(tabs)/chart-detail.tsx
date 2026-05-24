@@ -6,10 +6,16 @@ import { NatalChartVisual } from '@/components/NatalChartVisual';
 import { CalculationResult, calculateChart } from '@/lib/chartCalculations';
 import { ASPECT_TYPES_TR } from '@/lib/astrology';
 import { ChevronLeft } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/hooks/useTheme';
+import { Colors } from '@/lib/theme';
 
 export default function ChartDetailScreen() {
   const { chartId } = useLocalSearchParams();
   const router = useRouter();
+  const colors = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = createStyles(colors);
   const [chart, setChart] = useState<StoredChart | null>(null);
   const [chartData, setChartData] = useState<CalculationResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +60,7 @@ export default function ChartDetailScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -75,10 +81,10 @@ export default function ChartDetailScreen() {
   const ascendant = chartData.bodies.Sun ? chartData.bodies.Sun.sign : '';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingTop: 12 + insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ChevronLeft size={24} color="#2563eb" />
+          <ChevronLeft size={24} color={colors.primary} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.title}>{chart.name}</Text>
@@ -166,237 +172,239 @@ export default function ChartDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 32,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingTop: 8,
-  },
-  backButton: {
-    marginRight: 12,
-    padding: 8,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1a1a1a',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
-  },
-  chartInfo: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    gap: 12,
-  },
-  infoItem: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  summaryCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  summaryTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  summaryLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  summaryValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2563eb',
-  },
-  interpretationCard: {
-    backgroundColor: '#f0f9ff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#2563eb',
-  },
-  interpretationTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  interpretationText: {
-    fontSize: 14,
-    color: '#4b5563',
-    lineHeight: 20,
-  },
-  bodiesCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  bodiesTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  bodyRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  bodyInfo: {
-    flex: 1,
-  },
-  bodyName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 2,
-  },
-  bodySign: {
-    fontSize: 12,
-    color: '#666',
-  },
-  bodyHouse: {
-    fontSize: 12,
-    color: '#666',
-  },
-  aspectsCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  aspectsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  aspectRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  aspectBodies: {
-    fontSize: 14,
-    color: '#1a1a1a',
-    flex: 1,
-  },
-  aspectOrb: {
-    fontSize: 12,
-    color: '#666',
-  },
-  noAspects: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-    paddingVertical: 12,
-  },
-  housesCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  housesTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  houseRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  houseNumber: {
-    fontSize: 14,
-    color: '#666',
-  },
-  houseCusp: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2563eb',
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#c33',
-    marginBottom: 16,
-  },
-  button: {
-    backgroundColor: '#2563eb',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});
+function createStyles(c: Colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    contentContainer: {
+      paddingHorizontal: 16,
+      paddingTop: 12,
+      paddingBottom: 32,
+    },
+    centerContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: c.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 16,
+      paddingTop: 8,
+    },
+    backButton: {
+      marginRight: 12,
+      padding: 8,
+    },
+    headerContent: {
+      flex: 1,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: c.text,
+    },
+    subtitle: {
+      fontSize: 14,
+      color: c.textSecondary,
+      marginTop: 2,
+    },
+    chartInfo: {
+      flexDirection: 'row',
+      marginBottom: 16,
+      gap: 12,
+    },
+    infoItem: {
+      flex: 1,
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    infoLabel: {
+      fontSize: 12,
+      color: c.textSecondary,
+      marginBottom: 4,
+    },
+    infoValue: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.text,
+    },
+    summaryCard: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    summaryTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 12,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: c.borderSubtle,
+    },
+    summaryLabel: {
+      fontSize: 14,
+      color: c.textSecondary,
+    },
+    summaryValue: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.primary,
+    },
+    interpretationCard: {
+      backgroundColor: c.surfaceAlt,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+      borderLeftWidth: 4,
+      borderLeftColor: c.primary,
+    },
+    interpretationTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 12,
+    },
+    interpretationText: {
+      fontSize: 14,
+      color: c.textSecondary,
+      lineHeight: 20,
+    },
+    bodiesCard: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    bodiesTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 12,
+    },
+    bodyRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: c.borderSubtle,
+    },
+    bodyInfo: {
+      flex: 1,
+    },
+    bodyName: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 2,
+    },
+    bodySign: {
+      fontSize: 12,
+      color: c.textSecondary,
+    },
+    bodyHouse: {
+      fontSize: 12,
+      color: c.textSecondary,
+    },
+    aspectsCard: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    aspectsTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 12,
+    },
+    aspectRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: c.borderSubtle,
+    },
+    aspectBodies: {
+      fontSize: 14,
+      color: c.text,
+      flex: 1,
+    },
+    aspectOrb: {
+      fontSize: 12,
+      color: c.textSecondary,
+    },
+    noAspects: {
+      fontSize: 14,
+      color: c.textMuted,
+      textAlign: 'center',
+      paddingVertical: 12,
+    },
+    housesCard: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    housesTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 12,
+    },
+    houseRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: c.borderSubtle,
+    },
+    houseNumber: {
+      fontSize: 14,
+      color: c.textSecondary,
+    },
+    houseCusp: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.primary,
+    },
+    errorText: {
+      fontSize: 16,
+      color: c.error,
+      marginBottom: 16,
+    },
+    button: {
+      backgroundColor: c.primary,
+      paddingVertical: 10,
+      paddingHorizontal: 24,
+      borderRadius: 10,
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+  });
+}

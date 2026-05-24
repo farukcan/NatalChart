@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,9 @@ import { useRouter } from 'expo-router';
 import { saveChart } from '@/lib/storage';
 import { calculateChart } from '@/lib/chartCalculations';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/hooks/useTheme';
+import { Colors } from '@/lib/theme';
 
 interface NominatimResult {
   place_id: number;
@@ -25,9 +28,14 @@ interface NominatimResult {
 
 export default function NewChartScreen() {
   const router = useRouter();
+  const colors = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = createStyles(colors);
   const [chartName, setChartName] = useState('');
   const [birthDateTime, setBirthDateTime] = useState(new Date(1990, 2, 15, 12, 0));
   const [pickerMode, setPickerMode] = useState<'date' | 'time' | null>(null);
+  // iOS spinner: use ref so onChange doesn't trigger re-renders (which reset the spinner)
+  const iosPickerRef = useRef<Date>(new Date(1990, 2, 15, 12, 0));
 
   const [locationQuery, setLocationQuery] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState<NominatimResult[]>([]);
@@ -147,8 +155,40 @@ export default function NewChartScreen() {
   };
 
   const handlePickerChange = (_: DateTimePickerEvent, selected?: Date) => {
-    if (Platform.OS === 'android') setPickerMode(null);
-    if (selected) setBirthDateTime(selected);
+    if (Platform.OS === 'android') {
+      setPickerMode(null);
+      if (selected) {
+        if (pickerMode === 'time') {
+          // Only apply hours/minutes to avoid date clobbering
+          const updated = new Date(birthDateTime);
+          updated.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+          setBirthDateTime(updated);
+        } else {
+          const updated = new Date(selected);
+          updated.setHours(birthDateTime.getHours(), birthDateTime.getMinutes(), 0, 0);
+          setBirthDateTime(updated);
+        }
+      }
+    } else {
+      // iOS spinner: write to ref only — no state update, no re-render, spinner stays stable
+      if (selected) iosPickerRef.current = selected;
+    }
+  };
+
+  const handleIOSDone = () => {
+    const picked = iosPickerRef.current;
+    if (pickerMode === 'time') {
+      // Only apply hours/minutes — ref uses today's date to avoid historical timezone issues
+      const updated = new Date(birthDateTime);
+      updated.setHours(picked.getHours(), picked.getMinutes(), 0, 0);
+      setBirthDateTime(updated);
+    } else {
+      // Only apply date — preserve existing time
+      const updated = new Date(picked);
+      updated.setHours(birthDateTime.getHours(), birthDateTime.getMinutes(), 0, 0);
+      setBirthDateTime(updated);
+    }
+    setPickerMode(null);
   };
 
   const validateInputs = (): boolean => {
@@ -200,10 +240,22 @@ export default function NewChartScreen() {
     }
   };
 
+  // Web-only: inline style for HTML date/time inputs
+  const webInputStyle = {
+    border: 'none',
+    background: 'transparent',
+    fontSize: 15,
+    color: colors.text,
+    flex: 1,
+    outline: 'none',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  };
+
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[styles.contentContainer, { paddingTop: 16 + insets.top }]}
       keyboardShouldPersistTaps="handled"
     >
       <Text style={styles.title}>Yeni Natal Chart Oluştur</Text>
@@ -215,7 +267,7 @@ export default function NewChartScreen() {
         <TextInput
           style={styles.input}
           placeholder="örn: Benim Doğum Haritam"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textMuted}
           value={chartName}
           onChangeText={setChartName}
           editable={!loading}
@@ -226,7 +278,7 @@ export default function NewChartScreen() {
         <Text style={styles.label}>Doğum Tarihi</Text>
         {Platform.OS === 'web' ? (
           <View style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}>
-            <Calendar size={18} color="#2563eb" />
+            <Calendar size={18} color={colors.primary} />
             {/* @ts-ignore */}
             <input
               type="date"
@@ -241,10 +293,10 @@ export default function NewChartScreen() {
         ) : (
           <TouchableOpacity
             style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}
-            onPress={() => setPickerMode('date')}
+            onPress={() => { iosPickerRef.current = birthDateTime; setPickerMode('date'); }}
             disabled={loading}
           >
-            <Calendar size={18} color="#2563eb" />
+            <Calendar size={18} color={colors.primary} />
             <Text style={styles.pickerButtonText}>{formatDisplayDate(birthDateTime)}</Text>
           </TouchableOpacity>
         )}
@@ -254,7 +306,7 @@ export default function NewChartScreen() {
         <Text style={styles.label}>Doğum Saati</Text>
         {Platform.OS === 'web' ? (
           <View style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}>
-            <Clock size={18} color="#2563eb" />
+            <Clock size={18} color={colors.primary} />
             {/* @ts-ignore */}
             <input
               type="time"
@@ -267,10 +319,16 @@ export default function NewChartScreen() {
         ) : (
           <TouchableOpacity
             style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}
-            onPress={() => setPickerMode('time')}
+            onPress={() => {
+              // Use today's date to avoid historical timezone conversion issues on iOS
+              const v = new Date();
+              v.setHours(birthDateTime.getHours(), birthDateTime.getMinutes(), 0, 0);
+              iosPickerRef.current = v;
+              setPickerMode('time');
+            }}
             disabled={loading}
           >
-            <Clock size={18} color="#2563eb" />
+            <Clock size={18} color={colors.primary} />
             <Text style={styles.pickerButtonText}>{formatDisplayTime(birthDateTime)}</Text>
           </TouchableOpacity>
         )}
@@ -279,16 +337,16 @@ export default function NewChartScreen() {
       <View style={styles.section}>
         <Text style={styles.label}>Doğum Yeri</Text>
         <View style={styles.locationInputRow}>
-          <MapPin size={18} color={location ? '#2563eb' : '#999'} style={styles.locationIcon} />
+          <MapPin size={18} color={location ? colors.primary : colors.textMuted} style={styles.locationIcon} />
           <TextInput
             style={styles.locationInput}
             placeholder="Şehir veya ilçe ara..."
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textMuted}
             value={locationQuery}
             onChangeText={handleLocationQueryChange}
             editable={!loading}
           />
-          {locationSearching && <ActivityIndicator size="small" color="#2563eb" />}
+          {locationSearching && <ActivityIndicator size="small" color={colors.primary} />}
         </View>
 
         {location ? (
@@ -321,7 +379,7 @@ export default function NewChartScreen() {
         <View style={styles.timezoneRow}>
           {timezoneLoading ? (
             <>
-              <ActivityIndicator size="small" color="#2563eb" />
+              <ActivityIndicator size="small" color={colors.primary} />
               <Text style={styles.timezoneText}>Saat dilimi belirleniyor...</Text>
             </>
           ) : (
@@ -363,12 +421,12 @@ export default function NewChartScreen() {
                 <Text style={styles.modalTitle}>
                   {pickerMode === 'date' ? 'Doğum Tarihi' : 'Doğum Saati'}
                 </Text>
-                <TouchableOpacity onPress={() => setPickerMode(null)}>
+                <TouchableOpacity onPress={handleIOSDone}>
                   <Text style={styles.modalDone}>Tamam</Text>
                 </TouchableOpacity>
               </View>
               <DateTimePicker
-                value={birthDateTime}
+                value={iosPickerRef.current}
                 mode={pickerMode}
                 display="spinner"
                 is24Hour={true}
@@ -385,188 +443,178 @@ export default function NewChartScreen() {
   );
 }
 
-// Web-only: inline style object for HTML date/time inputs
-const webInputStyle = {
-  border: 'none',
-  background: 'transparent',
-  fontSize: 15,
-  color: '#1a1a1a',
-  flex: 1,
-  outline: 'none',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 24,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 15,
-    color: '#1a1a1a',
-  },
-  pickerButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  pickerButtonDisabled: {
-    opacity: 0.5,
-  },
-  pickerButtonText: {
-    fontSize: 15,
-    color: '#1a1a1a',
-  },
-  locationInputRow: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  locationIcon: {
-    flexShrink: 0,
-  },
-  locationInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#1a1a1a',
-    padding: 0,
-  },
-  locationSelected: {
-    marginTop: 8,
-    backgroundColor: '#f0f9ff',
-    borderRadius: 8,
-    padding: 10,
-    borderLeftWidth: 3,
-    borderLeftColor: '#2563eb',
-  },
-  locationSelectedText: {
-    fontSize: 13,
-    color: '#1a1a1a',
-    fontWeight: '500',
-  },
-  locationCoords: {
-    fontSize: 11,
-    color: '#6b7280',
-    marginTop: 2,
-  },
-  suggestions: {
-    marginTop: 4,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  suggestionItem: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  suggestionText: {
-    fontSize: 13,
-    color: '#1a1a1a',
-    lineHeight: 18,
-  },
-  errorText: {
-    backgroundColor: '#fee',
-    color: '#c33',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    fontSize: 14,
-  },
-  button: {
-    backgroundColor: '#2563eb',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 24,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  modalDone: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2563eb',
-  },
-  timezoneRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 20,
-    paddingHorizontal: 4,
-  },
-  timezoneText: {
-    fontSize: 13,
-    color: '#6b7280',
-  },
-});
+function createStyles(c: Colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    contentContainer: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 32,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: c.text,
+      marginBottom: 24,
+    },
+    section: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 10,
+      padding: 12,
+      fontSize: 15,
+      color: c.text,
+    },
+    pickerButton: {
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 10,
+      padding: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    pickerButtonDisabled: {
+      opacity: 0.5,
+    },
+    pickerButtonText: {
+      fontSize: 15,
+      color: c.text,
+    },
+    locationInputRow: {
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    locationIcon: {
+      flexShrink: 0,
+    },
+    locationInput: {
+      flex: 1,
+      fontSize: 15,
+      color: c.text,
+      padding: 0,
+    },
+    locationSelected: {
+      marginTop: 8,
+      backgroundColor: c.surfaceAlt,
+      borderRadius: 10,
+      padding: 10,
+      borderLeftWidth: 3,
+      borderLeftColor: c.primary,
+    },
+    locationSelectedText: {
+      fontSize: 13,
+      color: c.text,
+      fontWeight: '500',
+    },
+    locationCoords: {
+      fontSize: 11,
+      color: c.textSecondary,
+      marginTop: 2,
+    },
+    suggestions: {
+      marginTop: 4,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 10,
+      overflow: 'hidden',
+    },
+    suggestionItem: {
+      padding: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: c.borderSubtle,
+    },
+    suggestionText: {
+      fontSize: 13,
+      color: c.text,
+      lineHeight: 18,
+    },
+    errorText: {
+      backgroundColor: c.errorBg,
+      color: c.errorText,
+      padding: 12,
+      borderRadius: 10,
+      marginBottom: 16,
+      fontSize: 14,
+    },
+    button: {
+      backgroundColor: c.primary,
+      padding: 14,
+      borderRadius: 10,
+      alignItems: 'center',
+      marginTop: 8,
+      marginBottom: 24,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    modalOverlay: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+      backgroundColor: c.surface,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      paddingBottom: 24,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    modalTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+    },
+    modalDone: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.primary,
+    },
+    timezoneRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 20,
+      paddingHorizontal: 4,
+    },
+    timezoneText: {
+      fontSize: 13,
+      color: c.textSecondary,
+    },
+  });
+}

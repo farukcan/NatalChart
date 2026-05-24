@@ -3,9 +3,15 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getAllCharts, deleteChart, StoredChart } from '@/lib/storage';
 import { Trash2 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/hooks/useTheme';
+import { Colors } from '@/lib/theme';
 
 export default function ChartsScreen() {
   const router = useRouter();
+  const colors = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = createStyles(colors);
   const [charts, setCharts] = useState<StoredChart[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -53,7 +59,7 @@ export default function ChartsScreen() {
   if (loading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -61,8 +67,8 @@ export default function ChartsScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      contentContainerStyle={[styles.contentContainer, { paddingTop: 16 + insets.top }]}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
     >
       <Text style={styles.title}>Kayıtlı Chartlarım</Text>
 
@@ -100,7 +106,7 @@ export default function ChartsScreen() {
                   }
                 }}
               >
-                <Trash2 size={20} color="#ef4444" />
+                <Trash2 size={20} color={colors.error} />
               </TouchableOpacity>
             </TouchableOpacity>
           ))}
@@ -110,87 +116,89 @@ export default function ChartsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 16,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-    maxWidth: 280,
-  },
-  emptyButton: {
-    backgroundColor: '#2563eb',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  emptyButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  chartCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  chartContent: {
-    flex: 1,
-  },
-  chartName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 4,
-  },
-  chartLocation: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  chartDate: {
-    fontSize: 12,
-    color: '#999',
-  },
-  deleteButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
-});
+function createStyles(c: Colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    contentContainer: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 32,
+    },
+    centerContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: c.background,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: c.text,
+      marginBottom: 16,
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 60,
+    },
+    emptyTitle: {
+      fontSize: 18,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 8,
+    },
+    emptyText: {
+      fontSize: 14,
+      color: c.textSecondary,
+      textAlign: 'center',
+      marginBottom: 24,
+      maxWidth: 280,
+    },
+    emptyButton: {
+      backgroundColor: c.primary,
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 10,
+    },
+    emptyButtonText: {
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    chartCard: {
+      backgroundColor: c.surface,
+      borderRadius: 16,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: c.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    chartContent: {
+      flex: 1,
+    },
+    chartName: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 4,
+    },
+    chartLocation: {
+      fontSize: 14,
+      color: c.textSecondary,
+      marginBottom: 4,
+    },
+    chartDate: {
+      fontSize: 12,
+      color: c.textMuted,
+    },
+    deleteButton: {
+      padding: 8,
+      marginLeft: 8,
+    },
+  });
+}

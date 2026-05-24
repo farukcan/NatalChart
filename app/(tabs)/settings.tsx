@@ -1,8 +1,15 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '@/hooks/useTheme';
+import { Colors } from '@/lib/theme';
 
 export default function SettingsScreen() {
+  const colors = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = createStyles(colors);
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingTop: 16 + insets.top }]}>
       <Text style={styles.title}>Ayarlar</Text>
 
       <View style={styles.section}>
@@ -75,98 +82,100 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  contentContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1a1a1a',
-    marginBottom: 24,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 12,
-  },
-  infoBox: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  description: {
-    backgroundColor: '#f0f9ff',
-    borderRadius: 8,
-    padding: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: '#2563eb',
-  },
-  descriptionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 8,
-  },
-  descriptionText: {
-    fontSize: 13,
-    color: '#4b5563',
-    lineHeight: 18,
-    marginBottom: 8,
-  },
-  termBox: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  termTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 4,
-  },
-  termDescription: {
-    fontSize: 13,
-    color: '#4b5563',
-    lineHeight: 18,
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 32,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-  },
-  footerText: {
-    fontSize: 12,
-    color: '#999',
-  },
-});
+function createStyles(c: Colors) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: c.background,
+    },
+    contentContainer: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      paddingBottom: 32,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: c.text,
+      marginBottom: 24,
+    },
+    section: {
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 12,
+    },
+    infoBox: {
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 8,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    infoLabel: {
+      fontSize: 14,
+      color: c.textSecondary,
+    },
+    infoValue: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.text,
+    },
+    description: {
+      backgroundColor: c.surfaceAlt,
+      borderRadius: 12,
+      padding: 12,
+      borderLeftWidth: 4,
+      borderLeftColor: c.primary,
+    },
+    descriptionTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 8,
+    },
+    descriptionText: {
+      fontSize: 13,
+      color: c.textSecondary,
+      lineHeight: 18,
+      marginBottom: 8,
+    },
+    termBox: {
+      backgroundColor: c.surface,
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    termTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: c.text,
+      marginBottom: 4,
+    },
+    termDescription: {
+      fontSize: 13,
+      color: c.textSecondary,
+      lineHeight: 18,
+    },
+    footer: {
+      alignItems: 'center',
+      marginTop: 32,
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    footerText: {
+      fontSize: 12,
+      color: c.textMuted,
+    },
+  });
+}
