@@ -1,5 +1,13 @@
 import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getAllCharts, deleteChart, StoredChart } from '@/lib/storage';
 import { Trash2 } from 'lucide-react-native';
@@ -19,7 +27,7 @@ export default function ChartsScreen() {
   useFocusEffect(
     useCallback(() => {
       loadCharts();
-    }, [])
+    }, []),
   );
 
   const loadCharts = async () => {
@@ -67,15 +75,27 @@ export default function ChartsScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.contentContainer, { paddingTop: 16 + insets.top }]}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { paddingTop: 16 + insets.top },
+      ]}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.primary}
+        />
+      }
     >
       <Text style={styles.title}>Kayıtlı Chartlarım</Text>
 
       {charts.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>Chart Bulunamadı</Text>
-          <Text style={styles.emptyText}>Henüz bir natal chart oluşturmadınız. Yeni bir chart oluşturmaya başlayın!</Text>
+          <Text style={styles.emptyText}>
+            Henüz bir natal chart oluşturmadınız. Yeni bir chart oluşturmaya
+            başlayın!
+          </Text>
           <TouchableOpacity
             style={styles.emptyButton}
             onPress={() => router.push('/(tabs)/new-chart')}

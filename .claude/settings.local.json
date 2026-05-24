@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(npx expo:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:reactnative.directory)",
+      "Bash(npm info:*)",
+      "WebFetch(domain:snack.expo.dev)"
+    ]
+  }
+}

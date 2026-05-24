@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getChartById, StoredChart } from '@/lib/storage';
 import { NatalChartVisual } from '@/components/NatalChartVisual';
@@ -47,7 +54,15 @@ export default function ChartDetailScreen() {
       const [year, month, day] = stored.birth_date.split('-').map(Number);
       const [hour, minute] = stored.birth_time.split(':').map(Number);
 
-      const data = await calculateChart(year, month, day, hour, minute, stored.latitude, stored.longitude);
+      const data = await calculateChart(
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        stored.latitude,
+        stored.longitude,
+      );
       setChartData(data);
     } catch (err) {
       setError('Bir hata oluştu');
@@ -81,9 +96,18 @@ export default function ChartDetailScreen() {
   const ascendant = chartData.bodies.Sun ? chartData.bodies.Sun.sign : '';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingTop: 12 + insets.top }]}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { paddingTop: 12 + insets.top },
+      ]}
+    >
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <ChevronLeft size={24} color={colors.primary} />
         </TouchableOpacity>
         <View style={styles.headerContent}>
@@ -124,7 +148,10 @@ export default function ChartDetailScreen() {
       <View style={styles.interpretationCard}>
         <Text style={styles.interpretationTitle}>Kişilik Özeti</Text>
         <Text style={styles.interpretationText}>
-          {sunSign} Güneşi ile doğmuş olmanız, Sizin temel kimlik ve yaşam amacınızı temsil eder. {moonSign} Ayı ile, duygularınız ve içsel dünyanız yönetilir. {ascendant} Yükselen burçu ise, başkalarının sizi nasıl gördüğünü ve ilk izlenimleri belirler.
+          {sunSign} Güneşi ile doğmuş olmanız, Sizin temel kimlik ve yaşam
+          amacınızı temsil eder. {moonSign} Ayı ile, duygularınız ve içsel
+          dünyanız yönetilir. {ascendant} Yükselen burçu ise, başkalarının sizi
+          nasıl gördüğünü ve ilk izlenimleri belirler.
         </Text>
       </View>
 
@@ -144,12 +171,16 @@ export default function ChartDetailScreen() {
       </View>
 
       <View style={styles.aspectsCard}>
-        <Text style={styles.aspectsTitle}>Majör Aspektler ({chartData.aspects.length})</Text>
+        <Text style={styles.aspectsTitle}>
+          Majör Aspektler ({chartData.aspects.length})
+        </Text>
         {chartData.aspects.length > 0 ? (
           chartData.aspects.slice(0, 10).map((aspect, index) => (
             <View key={index} style={styles.aspectRow}>
               <Text style={styles.aspectBodies}>
-                {aspect.body1} {ASPECT_TYPES_TR[aspect.type as keyof typeof ASPECT_TYPES_TR]} {aspect.body2}
+                {aspect.body1}{' '}
+                {ASPECT_TYPES_TR[aspect.type as keyof typeof ASPECT_TYPES_TR]}{' '}
+                {aspect.body2}
               </Text>
               <Text style={styles.aspectOrb}>{aspect.orb.toFixed(1)}° orb</Text>
             </View>

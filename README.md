@@ -30,40 +30,45 @@ Mobil doğum haritası hesaplama ve görselleştirme uygulaması. Astrolojik hes
 ## 📱 Uygulama Ekranları
 
 ### Ana Sayfa (`/`)
+
 - Hoş geldin ekranı ve hızlı erişim
 
 ### Yeni Chart (`/new-chart`)
+
 - Doğum tarihi, saati ve yeri girişi
 - GPS ile konum alma özelliği
 
 ### Chart Detayı (`/chart-detail`)
+
 - Seçilen chart'ın detaylı görünümü
 - Gezegen pozisyonları tablosu
 - Ev dağılımı
 - Açılar listesi
 
 ### Charts (`/charts`)
+
 - Kaydedilmiş tüm doğum haritalarının listesi
 - Chart düzenleme/silme işlemleri
 
 ### Ayarlar (`/settings`)
+
 - Uygulama tercihleri
 
 ## 🗄️ Lokal Depolama
 
 Tüm veriler cihazda `AsyncStorage` ile saklanır. `StoredChart` veri yapısı:
 
-| Alan | Tip | Açıklama |
-|------|-----|----------|
-| `id` | string | Benzersiz kimlik |
-| `name` | string | Haritanın adı |
-| `birth_date` | string | Doğum tarihi (ISO) |
-| `birth_time` | string | Doğum saati |
-| `birth_location` | string | Doğum yeri adı |
-| `latitude` | number | Enlem |
-| `longitude` | number | Boylam |
-| `timezone_offset` | number | UTC farkı (saat) |
-| `created_at` | string | Oluşturulma zamanı (ISO) |
+| Alan              | Tip    | Açıklama                 |
+| ----------------- | ------ | ------------------------ |
+| `id`              | string | Benzersiz kimlik         |
+| `name`            | string | Haritanın adı            |
+| `birth_date`      | string | Doğum tarihi (ISO)       |
+| `birth_time`      | string | Doğum saati              |
+| `birth_location`  | string | Doğum yeri adı           |
+| `latitude`        | number | Enlem                    |
+| `longitude`       | number | Boylam                   |
+| `timezone_offset` | number | UTC farkı (saat)         |
+| `created_at`      | string | Oluşturulma zamanı (ISO) |
 
 ## 🔧 Kurulum ve Çalıştırma
 
@@ -114,6 +119,7 @@ npm run lint
 ### Desteklenen Hesaplamalar
 
 #### Gezegenler
+
 - ☉ Güneş
 - ☽ Ay
 - ☿ Merkür
@@ -126,11 +132,13 @@ npm run lint
 - ♇ Plüton
 
 #### Burçlar
+
 - ♈ Koç, ♉ Boğa, ♊ İkizler, ♋ Yengeç
 - ♌ Aslan, ♍ Başak, ♎ Terazi, ♏ Akrep
 - ♐ Yay, ♑ Oğlak, ♒ Kova, ♓ Balık
 
 #### Açılar
+
 - Konjünksiyon (0°)
 - Sekstil (60°)
 - Kare (90°)

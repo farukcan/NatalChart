@@ -106,7 +106,11 @@ export function getSignIndex(sign: string): number {
   return index >= 0 ? index : 0;
 }
 
-export function degreesToDMS(degrees: number): { degrees: number; minutes: number; seconds: number } {
+export function degreesToDMS(degrees: number): {
+  degrees: number;
+  minutes: number;
+  seconds: number;
+} {
   const d = Math.floor(degrees);
   const remaining = (degrees - d) * 60;
   const m = Math.floor(remaining);
@@ -114,7 +118,11 @@ export function degreesToDMS(degrees: number): { degrees: number; minutes: numbe
   return { degrees: d, minutes: m, seconds: s };
 }
 
-export function dmsToDecimal(degrees: number, minutes: number, seconds: number = 0): number {
+export function dmsToDecimal(
+  degrees: number,
+  minutes: number,
+  seconds: number = 0,
+): number {
   return degrees + minutes / 60 + seconds / 3600;
 }
 
@@ -138,25 +146,25 @@ export function getDegreesInSign(degrees: number): number {
 }
 
 export const ASPECT_TYPES = {
-  'Conjunction': { degrees: 0, orb: 8 },
-  'Sextile': { degrees: 60, orb: 6 },
-  'Square': { degrees: 90, orb: 8 },
-  'Trine': { degrees: 120, orb: 8 },
-  'Opposition': { degrees: 180, orb: 8 },
+  Conjunction: { degrees: 0, orb: 8 },
+  Sextile: { degrees: 60, orb: 6 },
+  Square: { degrees: 90, orb: 8 },
+  Trine: { degrees: 120, orb: 8 },
+  Opposition: { degrees: 180, orb: 8 },
 };
 
 export const ASPECT_TYPES_TR = {
-  'Conjunction': 'Konjünksiyon',
-  'Sextile': 'Sekstil',
-  'Square': 'Kare',
-  'Trine': 'Trigon',
-  'Opposition': 'Karşıt',
+  Conjunction: 'Konjünksiyon',
+  Sextile: 'Sekstil',
+  Square: 'Kare',
+  Trine: 'Trigon',
+  Opposition: 'Karşıt',
 };
 
 export const ASPECT_COLORS = {
-  'Conjunction': '#FF0000',
-  'Sextile': '#FFD700',
-  'Square': '#FF8C00',
-  'Trine': '#00AA00',
-  'Opposition': '#0000FF',
+  Conjunction: '#FF0000',
+  Sextile: '#FFD700',
+  Square: '#FF8C00',
+  Trine: '#00AA00',
+  Opposition: '#0000FF',
 };

@@ -22,13 +22,23 @@ type TimePickerProps = {
   borderColor: string;
 };
 
-export function TimePicker({ hour, minute, onHourChange, onMinuteChange, textColor, backgroundColor, borderColor }: TimePickerProps) {
+export function TimePicker({
+  hour,
+  minute,
+  onHourChange,
+  onMinuteChange,
+  textColor,
+  backgroundColor,
+  borderColor,
+}: TimePickerProps) {
   return (
     <View style={[styles.container, { backgroundColor, borderColor }]}>
       <WheelPicker
         data={HOURS}
         value={hour}
-        onValueChanged={({ item }: { item: { value: number } }) => onHourChange(item.value)}
+        onValueChanged={({ item }: { item: { value: number } }) =>
+          onHourChange(item.value)
+        }
         width={56}
         itemHeight={32}
         visibleItemCount={3}
@@ -38,7 +48,9 @@ export function TimePicker({ hour, minute, onHourChange, onMinuteChange, textCol
       <WheelPicker
         data={MINUTES}
         value={minute}
-        onValueChanged={({ item }: { item: { value: number } }) => onMinuteChange(item.value)}
+        onValueChanged={({ item }: { item: { value: number } }) =>
+          onMinuteChange(item.value)
+        }
         width={56}
         itemHeight={32}
         visibleItemCount={3}

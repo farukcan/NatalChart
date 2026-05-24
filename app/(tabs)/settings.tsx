@@ -10,7 +10,13 @@ export default function SettingsScreen() {
   const styles = createStyles(colors);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingTop: 16 + insets.top }]}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { paddingTop: 16 + insets.top },
+      ]}
+    >
       <Text style={styles.title}>Ayarlar</Text>
 
       <View style={styles.section}>
@@ -41,10 +47,14 @@ export default function SettingsScreen() {
         <View style={styles.description}>
           <Text style={styles.descriptionTitle}>Natal Chart Nedir?</Text>
           <Text style={styles.descriptionText}>
-            Natal chart, kişinin doğum anındaki gökyüzünün haritasıdır. Bu harita, gezegenlerin ve gök cisimlerinin belirli konumlardaki bulunuşunu gösterir.
+            Natal chart, kişinin doğum anındaki gökyüzünün haritasıdır. Bu
+            harita, gezegenlerin ve gök cisimlerinin belirli konumlardaki
+            bulunuşunu gösterir.
           </Text>
           <Text style={styles.descriptionText}>
-            Astroloji, bu haritayı analiz ederek, insanların kişilik özellikleri, güçlü yönleri, zayıf noktaları ve yaşam yolunun kaynakları hakkında bilgi verir.
+            Astroloji, bu haritayı analiz ederek, insanların kişilik
+            özellikleri, güçlü yönleri, zayıf noktaları ve yaşam yolunun
+            kaynakları hakkında bilgi verir.
           </Text>
         </View>
       </View>
@@ -55,41 +65,48 @@ export default function SettingsScreen() {
         <View style={styles.termBox}>
           <Text style={styles.termTitle}>Güneş Burcu</Text>
           <Text style={styles.termDescription}>
-            Doğum anında Güneşin bulunduğu burçtur. Kişinin temel kimliğini, yaşam amacını ve yaratıcı enerjisini temsil eder.
+            Doğum anında Güneşin bulunduğu burçtur. Kişinin temel kimliğini,
+            yaşam amacını ve yaratıcı enerjisini temsil eder.
           </Text>
         </View>
 
         <View style={styles.termBox}>
           <Text style={styles.termTitle}>Ay Burcu</Text>
           <Text style={styles.termDescription}>
-            Doğum anında Ayın bulunduğu burçtur. Duygular, içsel dünya, algılama şekli ve rahat olduğu ortamları temsil eder.
+            Doğum anında Ayın bulunduğu burçtur. Duygular, içsel dünya, algılama
+            şekli ve rahat olduğu ortamları temsil eder.
           </Text>
         </View>
 
         <View style={styles.termBox}>
           <Text style={styles.termTitle}>Yükselen Burç (Ascendant)</Text>
           <Text style={styles.termDescription}>
-            Doğum anında doğu ufkunda bulunan burçtur. Dış görünüş, ilk izlenim ve insanların sizi nasıl gördüğünü temsil eder.
+            Doğum anında doğu ufkunda bulunan burçtur. Dış görünüş, ilk izlenim
+            ve insanların sizi nasıl gördüğünü temsil eder.
           </Text>
         </View>
 
         <View style={styles.termBox}>
           <Text style={styles.termTitle}>Aspekt</Text>
           <Text style={styles.termDescription}>
-            Gezegenlerin birbiriyle yaptığı açılardır. Farklı aspektler, gezegenlerin enerjilerinin nasıl etkileşime girdiğini gösterir.
+            Gezegenlerin birbiriyle yaptığı açılardır. Farklı aspektler,
+            gezegenlerin enerjilerinin nasıl etkileşime girdiğini gösterir.
           </Text>
         </View>
 
         <View style={styles.termBox}>
           <Text style={styles.termTitle}>Ev</Text>
           <Text style={styles.termDescription}>
-            Natal harita 12 eve bölünür. Her ev, hayatın farklı alanlarını temsil eder (kariyer, ilişkiler, sağlık, vb).
+            Natal harita 12 eve bölünür. Her ev, hayatın farklı alanlarını
+            temsil eder (kariyer, ilişkiler, sağlık, vb).
           </Text>
         </View>
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2025 Natal Chart. Tüm Hakları Saklıdır.</Text>
+        <Text style={styles.footerText}>
+          © 2025 Natal Chart. Tüm Hakları Saklıdır.
+        </Text>
       </View>
     </ScrollView>
   );

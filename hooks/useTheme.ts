@@ -20,6 +20,7 @@ export function useTheme(): Colors {
 
 export function useThemeControl() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useThemeControl must be used within ThemeProvider');
+  if (!ctx)
+    throw new Error('useThemeControl must be used within ThemeProvider');
   return ctx;
 }

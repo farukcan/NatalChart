@@ -10,7 +10,9 @@ import {
   Platform,
   Modal,
 } from 'react-native';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { saveChart } from '@/lib/storage';
 import { calculateChart } from '@/lib/chartCalculations';
@@ -40,7 +42,9 @@ export default function NewChartScreen() {
   const iosDatePickerRef = useRef<Date>(new Date(2020, 0, 1));
 
   const [locationQuery, setLocationQuery] = useState('');
-  const [locationSuggestions, setLocationSuggestions] = useState<NominatimResult[]>([]);
+  const [locationSuggestions, setLocationSuggestions] = useState<
+    NominatimResult[]
+  >([]);
   const [locationSearching, setLocationSearching] = useState(false);
   const [location, setLocation] = useState('');
   const [latitude, setLatitude] = useState('');
@@ -104,7 +108,11 @@ export default function NewChartScreen() {
   };
 
   const handleSelectLocation = (result: NominatimResult) => {
-    const shortName = result.display_name.split(',').slice(0, 3).join(',').trim();
+    const shortName = result.display_name
+      .split(',')
+      .slice(0, 3)
+      .join(',')
+      .trim();
     setLocation(shortName);
     setLocationQuery(shortName);
     setLatitude(result.lat);
@@ -124,7 +132,11 @@ export default function NewChartScreen() {
 
   const formatDisplayDate = (): string => {
     const d = new Date(birthDate.year, birthDate.month - 1, birthDate.day);
-    return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+    return d.toLocaleDateString('tr-TR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
   };
 
   const formatDisplayTime = (): string => {
@@ -156,7 +168,11 @@ export default function NewChartScreen() {
     if (Platform.OS === 'android') {
       setPickerMode(null);
       if (selected) {
-        setBirthDate({ year: selected.getFullYear(), month: selected.getMonth() + 1, day: selected.getDate() });
+        setBirthDate({
+          year: selected.getFullYear(),
+          month: selected.getMonth() + 1,
+          day: selected.getDate(),
+        });
       }
     } else {
       // iOS spinner: write to ref only, commit on "Tamam"
@@ -166,7 +182,11 @@ export default function NewChartScreen() {
 
   const handleIOSDone = () => {
     const picked = iosDatePickerRef.current;
-    setBirthDate({ year: picked.getFullYear(), month: picked.getMonth() + 1, day: picked.getDate() });
+    setBirthDate({
+      year: picked.getFullYear(),
+      month: picked.getMonth() + 1,
+      day: picked.getDate(),
+    });
     setPickerMode(null);
   };
 
@@ -210,7 +230,10 @@ export default function NewChartScreen() {
         timezone_offset: tzOffset,
       });
 
-      router.push({ pathname: '/(tabs)/chart-detail', params: { chartId: chart.id } });
+      router.push({
+        pathname: '/(tabs)/chart-detail',
+        params: { chartId: chart.id },
+      });
     } catch (err) {
       setError('Bir hata oluştu. Lütfen tekrar deneyin.');
       console.error(err);
@@ -234,7 +257,10 @@ export default function NewChartScreen() {
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.contentContainer, { paddingTop: 16 + insets.top }]}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { paddingTop: 16 + insets.top },
+      ]}
       keyboardShouldPersistTaps="handled"
     >
       <Text style={styles.title}>Yeni Natal Chart Oluştur</Text>
@@ -256,7 +282,12 @@ export default function NewChartScreen() {
       <View style={styles.section}>
         <Text style={styles.label}>Doğum Tarihi</Text>
         {Platform.OS === 'web' ? (
-          <View style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}>
+          <View
+            style={[
+              styles.pickerButton,
+              loading && styles.pickerButtonDisabled,
+            ]}
+          >
             <Calendar size={18} color={colors.primary} />
             {/* @ts-ignore */}
             <input
@@ -271,8 +302,18 @@ export default function NewChartScreen() {
           </View>
         ) : (
           <TouchableOpacity
-            style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}
-            onPress={() => { iosDatePickerRef.current = new Date(birthDate.year, birthDate.month - 1, birthDate.day); setPickerMode('date'); }}
+            style={[
+              styles.pickerButton,
+              loading && styles.pickerButtonDisabled,
+            ]}
+            onPress={() => {
+              iosDatePickerRef.current = new Date(
+                birthDate.year,
+                birthDate.month - 1,
+                birthDate.day,
+              );
+              setPickerMode('date');
+            }}
             disabled={loading}
           >
             <Calendar size={18} color={colors.primary} />
@@ -284,7 +325,12 @@ export default function NewChartScreen() {
       <View style={styles.section}>
         <Text style={styles.label}>Doğum Saati</Text>
         {Platform.OS === 'web' ? (
-          <View style={[styles.pickerButton, loading && styles.pickerButtonDisabled]}>
+          <View
+            style={[
+              styles.pickerButton,
+              loading && styles.pickerButtonDisabled,
+            ]}
+          >
             <Clock size={18} color={colors.primary} />
             {/* @ts-ignore */}
             <input
@@ -311,7 +357,11 @@ export default function NewChartScreen() {
       <View style={styles.section}>
         <Text style={styles.label}>Doğum Yeri</Text>
         <View style={styles.locationInputRow}>
-          <MapPin size={18} color={location ? colors.primary : colors.textMuted} style={styles.locationIcon} />
+          <MapPin
+            size={18}
+            color={location ? colors.primary : colors.textMuted}
+            style={styles.locationIcon}
+          />
           <TextInput
             style={styles.locationInput}
             placeholder="Şehir veya ilçe ara..."
@@ -320,14 +370,17 @@ export default function NewChartScreen() {
             onChangeText={handleLocationQueryChange}
             editable={!loading}
           />
-          {locationSearching && <ActivityIndicator size="small" color={colors.primary} />}
+          {locationSearching && (
+            <ActivityIndicator size="small" color={colors.primary} />
+          )}
         </View>
 
         {location ? (
           <View style={styles.locationSelected}>
             <Text style={styles.locationSelectedText}>{location}</Text>
             <Text style={styles.locationCoords}>
-              {parseFloat(latitude).toFixed(4)}, {parseFloat(longitude).toFixed(4)}
+              {parseFloat(latitude).toFixed(4)},{' '}
+              {parseFloat(longitude).toFixed(4)}
             </Text>
           </View>
         ) : null}
@@ -349,12 +402,14 @@ export default function NewChartScreen() {
         )}
       </View>
 
-      {(timezoneLoading || timezoneLabel) ? (
+      {timezoneLoading || timezoneLabel ? (
         <View style={styles.timezoneRow}>
           {timezoneLoading ? (
             <>
               <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.timezoneText}>Saat dilimi belirleniyor...</Text>
+              <Text style={styles.timezoneText}>
+                Saat dilimi belirleniyor...
+              </Text>
             </>
           ) : (
             <Text style={styles.timezoneText}>{timezoneLabel}</Text>

@@ -1,4 +1,9 @@
-import { ZODIAC_SIGNS_EN, getSignFromDegrees, getDegreesInSign, ASPECT_TYPES } from './astrology';
+import {
+  ZODIAC_SIGNS_EN,
+  getSignFromDegrees,
+  getDegreesInSign,
+  ASPECT_TYPES,
+} from './astrology';
 
 export interface CalculationResult {
   bodies: Record<string, BodyPosition>;
@@ -33,7 +38,13 @@ export interface AspectResult {
   isApplying: boolean;
 }
 
-function calculateJulianDay(year: number, month: number, day: number, hour: number, minute: number): number {
+function calculateJulianDay(
+  year: number,
+  month: number,
+  day: number,
+  hour: number,
+  minute: number,
+): number {
   let y = year;
   let m = month;
 
@@ -63,7 +74,9 @@ function getSunLongitude(jd: number): number {
   const M = 357.52911 + T * (35999.05029 - T * 0.0001537);
   const Mrad = (M * Math.PI) / 180;
 
-  const C = (1.914602 - T * (0.004817 + T * 0.000014)) * Math.sin(Mrad) + (0.019993 - T * 0.000101) * Math.sin(2 * Mrad);
+  const C =
+    (1.914602 - T * (0.004817 + T * 0.000014)) * Math.sin(Mrad) +
+    (0.019993 - T * 0.000101) * Math.sin(2 * Mrad);
 
   let lng = L0 + C;
   lng = lng % 360;
@@ -72,20 +85,41 @@ function getSunLongitude(jd: number): number {
 
 function getMoonLongitude(jd: number): number {
   const T = (jd - 2451545.0) / 36525.0;
-  const Lprime = 218.3164477 + T * (481267.88123421 - T * (0.0015786 + T * (1.0 / 538841.0 - T / 65194000.0)));
-  const D = 297.8501921 + T * (445267.1114034 - T * (0.0018819 + T * (1.0 / 545868.0 - T / 113065000.0)));
-  const Mprime = 134.9633964 + T * (477198.8675055 + T * (0.0087414 + T * (1.0 / 69699.0 - T / 14712000.0)));
+  const Lprime =
+    218.3164477 +
+    T *
+      (481267.88123421 -
+        T * (0.0015786 + T * (1.0 / 538841.0 - T / 65194000.0)));
+  const D =
+    297.8501921 +
+    T *
+      (445267.1114034 -
+        T * (0.0018819 + T * (1.0 / 545868.0 - T / 113065000.0)));
+  const Mprime =
+    134.9633964 +
+    T *
+      (477198.8675055 + T * (0.0087414 + T * (1.0 / 69699.0 - T / 14712000.0)));
 
   const Drad = (D * Math.PI) / 180;
   const Mrad = (Mprime * Math.PI) / 180;
 
-  let lng = Lprime + 6.28875 * Math.sin(Mrad) + 1.27402 * Math.sin(2 * Drad - Mrad);
+  let lng =
+    Lprime + 6.28875 * Math.sin(Mrad) + 1.27402 * Math.sin(2 * Drad - Mrad);
 
   lng = lng % 360;
   return lng < 0 ? lng + 360 : lng;
 }
 
-function getPlanetLongitude(jd: number, coefficients: { L: number; lRate: number; e: number; M: number; mRate: number }): number {
+function getPlanetLongitude(
+  jd: number,
+  coefficients: {
+    L: number;
+    lRate: number;
+    e: number;
+    M: number;
+    mRate: number;
+  },
+): number {
   const T = (jd - 2451545.0) / 36525.0;
   const L = coefficients.L + coefficients.lRate * T;
   const M = coefficients.M + coefficients.mRate * T;
@@ -98,7 +132,10 @@ function getPlanetLongitude(jd: number, coefficients: { L: number; lRate: number
   return result < 0 ? result + 360 : result;
 }
 
-function calculateHouses(ascendantDegrees: number, _latitude: number): Record<number, HousePosition> {
+function calculateHouses(
+  ascendantDegrees: number,
+  _latitude: number,
+): Record<number, HousePosition> {
   const houses: Record<number, HousePosition> = {};
 
   for (let i = 1; i <= 12; i++) {
@@ -117,16 +154,32 @@ function calculateHouses(ascendantDegrees: number, _latitude: number): Record<nu
   return houses;
 }
 
-function getHouseForLongitude(longitude: number, ascendantDegrees: number): number {
+function getHouseForLongitude(
+  longitude: number,
+  ascendantDegrees: number,
+): number {
   const normalized = (longitude - ascendantDegrees + 360) % 360;
   const houseIndex = Math.floor(normalized / 30) + 1;
   return houseIndex <= 12 ? houseIndex : houseIndex - 12;
 }
 
-function calculateAspects(bodies: Record<string, BodyPosition>): AspectResult[] {
+function calculateAspects(
+  bodies: Record<string, BodyPosition>,
+): AspectResult[] {
   const aspects: AspectResult[] = [];
   const bodyNames = Object.keys(bodies);
-  const mainBodies = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+  const mainBodies = [
+    'Sun',
+    'Moon',
+    'Mercury',
+    'Venus',
+    'Mars',
+    'Jupiter',
+    'Saturn',
+    'Uranus',
+    'Neptune',
+    'Pluto',
+  ];
 
   for (let i = 0; i < mainBodies.length; i++) {
     for (let j = i + 1; j < mainBodies.length; j++) {
@@ -173,7 +226,7 @@ export async function calculateChart(
   hour: number,
   minute: number,
   latitude: number,
-  longitude: number
+  longitude: number,
 ): Promise<CalculationResult> {
   const jd = calculateJulianDay(year, month, day, hour, minute);
 

@@ -15,7 +15,8 @@ export default function RootLayout() {
   const systemScheme = useColorScheme();
   const [override, setOverride] = useState<'dark' | 'light' | null>(null);
 
-  const isDark = override !== null ? override === 'dark' : systemScheme === 'dark';
+  const isDark =
+    override !== null ? override === 'dark' : systemScheme === 'dark';
 
   useEffect(() => {
     AsyncStorage.getItem(THEME_KEY).then((val) => {
@@ -37,7 +38,9 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ colors: isDark ? darkColors : lightColors, isDark, setScheme }}>
+    <ThemeContext.Provider
+      value={{ colors: isDark ? darkColors : lightColors, isDark, setScheme }}
+    >
       <SafeAreaProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

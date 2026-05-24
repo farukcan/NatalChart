@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowRight } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,15 +26,26 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingTop: 24 + insets.top }]}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { paddingTop: 24 + insets.top },
+      ]}
+    >
       <View style={styles.header}>
         <Text style={styles.greeting}>Hoş Geldiniz</Text>
-        <Text style={styles.subtitle}>Astrolojik Natal Haritanızı Keşfedin</Text>
+        <Text style={styles.subtitle}>
+          Astrolojik Natal Haritanızı Keşfedin
+        </Text>
       </View>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Yeni Natal Chart</Text>
-        <Text style={styles.cardDescription}>Doğum tarihi, saati ve konum bilgilerinizi girerek kişisel natal haritanızı oluşturun.</Text>
+        <Text style={styles.cardDescription}>
+          Doğum tarihi, saati ve konum bilgilerinizi girerek kişisel natal
+          haritanızı oluşturun.
+        </Text>
         <TouchableOpacity style={styles.cardButton} onPress={handleNewChart}>
           <Text style={styles.cardButtonText}>Başla</Text>
           <ArrowRight size={20} color={colors.primary} />
@@ -37,7 +54,10 @@ export default function HomeScreen() {
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Kayıtlı Chartlarınız</Text>
-        <Text style={styles.cardDescription}>Daha önce oluşturduğunuz natal haritaları görüntüleyin, detaylarını inceleyip yorumlamaları okuyun.</Text>
+        <Text style={styles.cardDescription}>
+          Daha önce oluşturduğunuz natal haritaları görüntüleyin, detaylarını
+          inceleyip yorumlamaları okuyun.
+        </Text>
         <TouchableOpacity style={styles.cardButton} onPress={handleViewCharts}>
           <Text style={styles.cardButtonText}>Görüntüle</Text>
           <ArrowRight size={20} color={colors.primary} />
@@ -47,10 +67,14 @@ export default function HomeScreen() {
       <View style={styles.infoSection}>
         <Text style={styles.infoTitle}>Natal Chart Nedir?</Text>
         <Text style={styles.infoText}>
-          Natal chart (doğum haritası), doğum anında gökyüzünün haritasıdır. Gezegenlerin ve yıldızların konumları temel alınarak, kişinin kişilik özellikleri, güçlü yönleri, zayıf noktaları ve yaşam yolunun kaynakları hakkında bilgi verir.
+          Natal chart (doğum haritası), doğum anında gökyüzünün haritasıdır.
+          Gezegenlerin ve yıldızların konumları temel alınarak, kişinin kişilik
+          özellikleri, güçlü yönleri, zayıf noktaları ve yaşam yolunun
+          kaynakları hakkında bilgi verir.
         </Text>
         <Text style={styles.infoText}>
-          Astroloji, insanların hayatlarını daha iyi anlamalarına ve kendi potansiyellerini keşfetmelerine yardımcı olan antik bir bilim dalıdır.
+          Astroloji, insanların hayatlarını daha iyi anlamalarına ve kendi
+          potansiyellerini keşfetmelerine yardımcı olan antik bir bilim dalıdır.
         </Text>
       </View>
     </ScrollView>

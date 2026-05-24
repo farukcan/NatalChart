@@ -46,20 +46,21 @@ export default function TabsLayout() {
         name="charts"
         options={{
           title: 'Chartlarım',
-          tabBarIcon: ({ size, color }) => <History size={size} color={color} />,
+          tabBarIcon: ({ size, color }) => (
+            <History size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Ayarlar',
-          tabBarIcon: ({ size, color }) => <Settings size={size} color={color} />,
+          tabBarIcon: ({ size, color }) => (
+            <Settings size={size} color={color} />
+          ),
         }}
       />
-      <Tabs.Screen
-        name="chart-detail"
-        options={{ href: null }}
-      />
+      <Tabs.Screen name="chart-detail" options={{ href: null }} />
     </Tabs>
   );
 }

@@ -19,7 +19,10 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
     return ((degrees - 90) * Math.PI) / 180;
   };
 
-  const polarToCartesian = (angle: number, distance: number): { x: number; y: number } => {
+  const polarToCartesian = (
+    angle: number,
+    distance: number,
+  ): { x: number; y: number } => {
     return {
       x: center + distance * Math.cos(angle),
       y: center + distance * Math.sin(angle),
@@ -33,7 +36,10 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
     for (let i = 0; i < 12; i++) {
       const startDegrees = i * 30;
       const startAngle = degreesToRadians(startDegrees);
-      const zodiacSymbolPos = polarToCartesian(degreesToRadians(startDegrees + 15), signRadius + 20);
+      const zodiacSymbolPos = polarToCartesian(
+        degreesToRadians(startDegrees + 15),
+        signRadius + 20,
+      );
 
       elements.push(
         <Line
@@ -44,7 +50,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           y2={polarToCartesian(startAngle, radius).y}
           stroke={colors.chartSubStroke}
           strokeWidth="1"
-        />
+        />,
       );
 
       elements.push(
@@ -58,7 +64,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           fill={colors.chartText}
         >
           {ZODIAC_SYMBOLS[i]}
-        </SvgText>
+        </SvgText>,
       );
     }
 
@@ -89,7 +95,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           stroke={colors.chartStroke}
           strokeWidth="1"
           opacity={0.5}
-        />
+        />,
       );
 
       const labelPos = polarToCartesian(angle, houseRadius - 35);
@@ -103,7 +109,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           fill={colors.chartTextMuted}
         >
           {i}
-        </SvgText>
+        </SvgText>,
       );
     }
 
@@ -113,7 +119,18 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
   const drawPlanets = (): ReactElement[] => {
     const elements: ReactElement[] = [];
     const planetRadius = radius - 80;
-    const mainBodies = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+    const mainBodies = [
+      'Sun',
+      'Moon',
+      'Mercury',
+      'Venus',
+      'Mars',
+      'Jupiter',
+      'Saturn',
+      'Uranus',
+      'Neptune',
+      'Pluto',
+    ];
 
     mainBodies.forEach((bodyName) => {
       const body = chartData.bodies[bodyName];
@@ -121,7 +138,8 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
 
       const angle = degreesToRadians(body.longitude);
       const pos = polarToCartesian(angle, planetRadius);
-      const symbol = PLANETARY_SYMBOLS[bodyName as keyof typeof PLANETARY_SYMBOLS] || '●';
+      const symbol =
+        PLANETARY_SYMBOLS[bodyName as keyof typeof PLANETARY_SYMBOLS] || '●';
       const color = getPlanetColor(bodyName);
 
       elements.push(
@@ -135,7 +153,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           fontWeight="bold"
         >
           {symbol}
-        </SvgText>
+        </SvgText>,
       );
     });
 
@@ -145,10 +163,25 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
   const drawAspectLines = (): ReactElement[] => {
     const elements: ReactElement[] = [];
     const planetRadius = radius - 80;
-    const mainBodies = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+    const mainBodies = [
+      'Sun',
+      'Moon',
+      'Mercury',
+      'Venus',
+      'Mars',
+      'Jupiter',
+      'Saturn',
+      'Uranus',
+      'Neptune',
+      'Pluto',
+    ];
 
     chartData.aspects.forEach((aspect, index) => {
-      if (!mainBodies.includes(aspect.body1) || !mainBodies.includes(aspect.body2)) return;
+      if (
+        !mainBodies.includes(aspect.body1) ||
+        !mainBodies.includes(aspect.body2)
+      )
+        return;
 
       const body1 = chartData.bodies[aspect.body1];
       const body2 = chartData.bodies[aspect.body2];
@@ -170,7 +203,7 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
           stroke={color}
           strokeWidth="1"
           opacity={0.6}
-        />
+        />,
       );
     });
 
@@ -208,13 +241,34 @@ export function NatalChartVisual({ chartData }: NatalChartVisualProps) {
     <View style={{ alignItems: 'center', marginVertical: 20 }}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* Background circle */}
-        <Circle cx={center} cy={center} r={radius + 10} fill={colors.chartBg} stroke={colors.chartBorder} strokeWidth="1" />
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius + 10}
+          fill={colors.chartBg}
+          stroke={colors.chartBorder}
+          strokeWidth="1"
+        />
 
         {/* Outer circle */}
-        <Circle cx={center} cy={center} r={radius} fill="none" stroke={colors.chartStroke} strokeWidth="2" />
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius}
+          fill="none"
+          stroke={colors.chartStroke}
+          strokeWidth="2"
+        />
 
         {/* Inner circle */}
-        <Circle cx={center} cy={center} r={radius - 50} fill="none" stroke={colors.chartSubStroke} strokeWidth="1" />
+        <Circle
+          cx={center}
+          cy={center}
+          r={radius - 50}
+          fill="none"
+          stroke={colors.chartSubStroke}
+          strokeWidth="1"
+        />
 
         {/* Zodiac circle */}
         {drawZodiacCircle()}

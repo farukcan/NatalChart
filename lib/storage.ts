@@ -24,7 +24,9 @@ export async function getAllCharts(): Promise<StoredChart[]> {
   return JSON.parse(raw) as StoredChart[];
 }
 
-export async function saveChart(input: Omit<StoredChart, 'id' | 'created_at'>): Promise<StoredChart> {
+export async function saveChart(
+  input: Omit<StoredChart, 'id' | 'created_at'>,
+): Promise<StoredChart> {
   const charts = await getAllCharts();
   const chart: StoredChart = {
     ...input,
