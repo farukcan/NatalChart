@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  Platform,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { getAllCharts, deleteChart, StoredChart } from '@/lib/storage';
@@ -122,18 +123,24 @@ export default function ChartsScreen() {
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => {
-                  Alert.alert(
-                    'Silme Onayı',
-                    'Bu chartı silmek istediğinize emin misiniz?',
-                    [
-                      { text: 'İptal', style: 'cancel' },
-                      {
-                        text: 'Sil',
-                        style: 'destructive',
-                        onPress: () => handleDeleteChart(chart.id),
-                      },
-                    ],
-                  );
+                  if (Platform.OS === 'web') {
+                    if (window.confirm('Bu chartı silmek istediğinize emin misiniz?')) {
+                      handleDeleteChart(chart.id);
+                    }
+                  } else {
+                    Alert.alert(
+                      'Silme Onayı',
+                      'Bu chartı silmek istediğinize emin misiniz?',
+                      [
+                        { text: 'İptal', style: 'cancel' },
+                        {
+                          text: 'Sil',
+                          style: 'destructive',
+                          onPress: () => handleDeleteChart(chart.id),
+                        },
+                      ],
+                    );
+                  }
                 }}
               >
                 <Trash2 size={20} color={colors.error} />
