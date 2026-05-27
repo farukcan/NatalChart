@@ -36,6 +36,7 @@ export default function NewChartScreen() {
   const styles = createStyles(colors);
   const [chartName, setChartName] = useState('');
   const [birthDate, setBirthDate] = useState({ year: 1990, month: 3, day: 15 });
+  const [webDateText, setWebDateText] = useState('1990-03-15');
   const [birthHour, setBirthHour] = useState(12);
   const [birthMinute, setBirthMinute] = useState(0);
   const [pickerMode, setPickerMode] = useState<'date' | null>(null);
@@ -131,30 +132,26 @@ export default function NewChartScreen() {
   };
 
   const formatDisplayDate = (): string => {
-    const d = new Date(birthDate.year, birthDate.month - 1, birthDate.day);
-    return d.toLocaleDateString('tr-TR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
+    return `${birthDate.year}-${String(birthDate.month).padStart(2, '0')}-${String(birthDate.day).padStart(2, '0')}`;
   };
 
   const formatDisplayTime = (): string => {
     return `${String(birthHour).padStart(2, '0')}:${String(birthMinute).padStart(2, '0')}`;
   };
 
-  const getWebDateValue = (): string => {
-    return `${birthDate.year}-${String(birthDate.month).padStart(2, '0')}-${String(birthDate.day).padStart(2, '0')}`;
-  };
-
   const getWebTimeValue = (): string => {
     return `${String(birthHour).padStart(2, '0')}:${String(birthMinute).padStart(2, '0')}`;
   };
 
-  const handleWebDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.value) return;
-    const [y, m, d] = e.target.value.split('-').map(Number);
-    setBirthDate({ year: y, month: m, day: d });
+  const handleWebDateTextChange = (text: string) => {
+    setWebDateText(text);
+    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      const [, y, m, d] = match.map(Number);
+      if (m >= 1 && m <= 12 && d >= 1 && d <= 31) {
+        setBirthDate({ year: y, month: m, day: d });
+      }
+    }
   };
 
   const handleWebTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,7 +215,7 @@ export default function NewChartScreen() {
       const lng = parseFloat(longitude);
       const tzOffset = timezoneOffset;
 
-      await calculateChart(year, month, day, hour, minute, lat, lng);
+      await calculateChart(year, month, day, hour, minute, lat, lng, tzOffset);
 
       const chart = await saveChart({
         name: chartName,
@@ -289,15 +286,14 @@ export default function NewChartScreen() {
             ]}
           >
             <Calendar size={18} color={colors.primary} />
-            {/* @ts-ignore */}
-            <input
-              type="date"
-              value={getWebDateValue()}
-              min="1900-01-01"
-              max={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`}
-              onChange={handleWebDateChange}
-              disabled={loading}
-              style={webInputStyle}
+            <TextInput
+              style={[styles.locationInput, { fontSize: 15 }]}
+              value={webDateText}
+              placeholder="YYYY-MM-DD"
+              placeholderTextColor={colors.textMuted}
+              onChangeText={handleWebDateTextChange}
+              editable={!loading}
+              maxLength={10}
             />
           </View>
         ) : (

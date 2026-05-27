@@ -62,6 +62,7 @@ export default function ChartDetailScreen() {
         minute,
         stored.latitude,
         stored.longitude,
+        stored.timezone_offset,
       );
       setChartData(data);
     } catch (err) {

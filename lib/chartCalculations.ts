@@ -1,9 +1,9 @@
 import {
-  ZODIAC_SIGNS_EN,
   getSignFromDegrees,
   getDegreesInSign,
   ASPECT_TYPES,
 } from './astrology';
+import * as Astronomy from 'astronomy-engine';
 
 export interface CalculationResult {
   bodies: Record<string, BodyPosition>;
@@ -67,69 +67,80 @@ function calculateJulianDay(
   return jd;
 }
 
-function getSunLongitude(jd: number): number {
-  const T = (jd - 2451545.0) / 36525.0;
-  const L0 = 280.46646 + T * (36000.76983 + T * 0.0003032);
-  const e = 0.016708634 - T * (4.2037e-5 + T * 1.267e-7);
-  const M = 357.52911 + T * (35999.05029 - T * 0.0001537);
-  const Mrad = (M * Math.PI) / 180;
+const PLANET_BODIES: Record<string, Astronomy.Body> = {
+  Mercury: Astronomy.Body.Mercury,
+  Venus: Astronomy.Body.Venus,
+  Mars: Astronomy.Body.Mars,
+  Jupiter: Astronomy.Body.Jupiter,
+  Saturn: Astronomy.Body.Saturn,
+  Uranus: Astronomy.Body.Uranus,
+  Neptune: Astronomy.Body.Neptune,
+  Pluto: Astronomy.Body.Pluto,
+};
 
-  const C =
-    (1.914602 - T * (0.004817 + T * 0.000014)) * Math.sin(Mrad) +
-    (0.019993 - T * 0.000101) * Math.sin(2 * Mrad);
-
-  let lng = L0 + C;
-  lng = lng % 360;
-  return lng < 0 ? lng + 360 : lng;
-}
-
-function getMoonLongitude(jd: number): number {
-  const T = (jd - 2451545.0) / 36525.0;
-  const Lprime =
-    218.3164477 +
-    T *
-      (481267.88123421 -
-        T * (0.0015786 + T * (1.0 / 538841.0 - T / 65194000.0)));
-  const D =
-    297.8501921 +
-    T *
-      (445267.1114034 -
-        T * (0.0018819 + T * (1.0 / 545868.0 - T / 113065000.0)));
-  const Mprime =
-    134.9633964 +
-    T *
-      (477198.8675055 + T * (0.0087414 + T * (1.0 / 69699.0 - T / 14712000.0)));
-
-  const Drad = (D * Math.PI) / 180;
-  const Mrad = (Mprime * Math.PI) / 180;
-
-  let lng =
-    Lprime + 6.28875 * Math.sin(Mrad) + 1.27402 * Math.sin(2 * Drad - Mrad);
-
-  lng = lng % 360;
-  return lng < 0 ? lng + 360 : lng;
-}
-
-function getPlanetLongitude(
-  jd: number,
-  coefficients: {
-    L: number;
-    lRate: number;
-    e: number;
-    M: number;
-    mRate: number;
-  },
+function getGeocentricLongitude(
+  body: Astronomy.Body,
+  date: Date,
+  precessionDeg: number,
 ): number {
+  const geo = Astronomy.GeoVector(body, date, true);
+  const ecl = Astronomy.Ecliptic(geo);
+  return ((ecl.elon + precessionDeg) % 360 + 360) % 360;
+}
+
+function calculateGMST(jd: number): number {
   const T = (jd - 2451545.0) / 36525.0;
-  const L = coefficients.L + coefficients.lRate * T;
-  const M = coefficients.M + coefficients.mRate * T;
-  const e = coefficients.e;
+  let gmst =
+    280.46061837 +
+    360.98564736629 * (jd - 2451545.0) +
+    0.000387933 * T * T -
+    (T * T * T) / 38710000.0;
+  gmst = gmst % 360;
+  if (gmst < 0) gmst += 360;
+  return gmst;
+}
 
-  const Mrad = (M * Math.PI) / 180;
-  const lng = L + (180 / Math.PI) * 2 * e * Math.sin(Mrad);
+function calculateAscendantAndMC(
+  jd: number,
+  latitude: number,
+  longitude: number,
+): { ascendant: number; midheaven: number } {
+  const gmst = calculateGMST(jd);
+  let lst = (gmst + longitude) % 360;
+  if (lst < 0) lst += 360;
 
-  let result = lng % 360;
-  return result < 0 ? result + 360 : result;
+  const T = (jd - 2451545.0) / 36525.0;
+  const obliquity = 23.4392911 - 0.0130042 * T;
+
+  const lstRad = (lst * Math.PI) / 180;
+  const latRad = (latitude * Math.PI) / 180;
+  const oblRad = (obliquity * Math.PI) / 180;
+
+  // Midheaven (MC)
+  let mc =
+    (Math.atan2(Math.sin(lstRad), Math.cos(lstRad) * Math.cos(oblRad)) * 180) /
+    Math.PI;
+  if (mc < 0) mc += 360;
+
+  // Ascendant (Duffett-Smith & Zwart, Practical Astronomy, p47)
+  const ascNumerator = -Math.cos(lstRad);
+  const ascDenominator =
+    Math.sin(oblRad) * Math.tan(latRad) +
+    Math.cos(oblRad) * Math.sin(lstRad);
+  let asc = Math.atan(ascNumerator / ascDenominator) * (180 / Math.PI);
+  if (ascDenominator < 0) {
+    asc += 180;
+  } else {
+    asc += 360;
+  }
+  if (asc >= 180) {
+    asc -= 180;
+  } else {
+    asc += 180;
+  }
+  asc = asc % 360;
+
+  return { ascendant: asc, midheaven: mc };
 }
 
 function calculateHouses(
@@ -227,136 +238,91 @@ export async function calculateChart(
   minute: number,
   latitude: number,
   longitude: number,
+  timezoneOffset: number = 0,
 ): Promise<CalculationResult> {
-  const jd = calculateJulianDay(year, month, day, hour, minute);
+  // Convert local time to UTC
+  let utcMinute = minute;
+  let utcHour = hour - timezoneOffset;
+  let utcDay = day;
+  let utcMonth = month;
+  let utcYear = year;
 
-  const sunLng = getSunLongitude(jd);
-  const moonLng = getMoonLongitude(jd);
-  const mercuryLng = getPlanetLongitude(jd, {
-    L: 252.25032,
-    lRate: 149472.6797,
-    e: 0.205635,
-    M: 74.96628,
-    mRate: 538101.49,
-  });
-  const venusLng = getPlanetLongitude(jd, {
-    L: 181.97909,
-    lRate: 58517.8149,
-    e: 0.006773,
-    M: 131.60688,
-    mRate: 210877.403,
-  });
-  const marsLng = getPlanetLongitude(jd, {
-    L: 355.43333,
-    lRate: 19140.2993,
-    e: 0.093405,
-    M: 19.3871,
-    mRate: 11062.8611,
-  });
-  const jupiterLng = getPlanetLongitude(jd, {
-    L: 34.35151,
-    lRate: 3034.9057,
-    e: 0.048494,
-    M: 20.76069,
-    mRate: 1223.511,
-  });
-  const saturnLng = getPlanetLongitude(jd, {
-    L: 50.07669,
-    lRate: 1222.4934,
-    e: 0.055746,
-    M: 317.13108,
-    mRate: 846.0891,
-  });
-  const uranusLng = 314.05002 + ((jd - 2451545.0) / 36525.0) * 428.4643;
-  const neptuneLng = 304.34866 + ((jd - 2451545.0) / 36525.0) * 218.2231;
-  const plutoLng = 238.92881 + ((jd - 2451545.0) / 36525.0) * 145.1694;
+  // Handle hour overflow/underflow
+  while (utcHour < 0) {
+    utcHour += 24;
+    utcDay -= 1;
+  }
+  while (utcHour >= 24) {
+    utcHour -= 24;
+    utcDay += 1;
+  }
 
-  const ascendant = (longitude + hour * 15 + minute * 0.25) % 360;
-  const midheaven = (ascendant + 90) % 360;
+  // Handle day overflow/underflow
+  const daysInMonth = new Date(utcYear, utcMonth, 0).getDate();
+  if (utcDay < 1) {
+    utcMonth -= 1;
+    if (utcMonth < 1) {
+      utcMonth = 12;
+      utcYear -= 1;
+    }
+    utcDay += new Date(utcYear, utcMonth, 0).getDate();
+  } else if (utcDay > daysInMonth) {
+    utcDay -= daysInMonth;
+    utcMonth += 1;
+    if (utcMonth > 12) {
+      utcMonth = 1;
+      utcYear += 1;
+    }
+  }
+
+  const jd = calculateJulianDay(utcYear, utcMonth, utcDay, utcHour, utcMinute);
+  const utcDate = new Date(Date.UTC(utcYear, utcMonth - 1, utcDay, utcHour, utcMinute));
+
+  // Precession correction: J2000 ecliptic → ecliptic of date
+  const T = (jd - 2451545.0) / 36525.0;
+  const precessionDeg = 1.3972 * T;
+
+  // Sun (apparent ecliptic of date - already includes precession)
+  const sunLng = Astronomy.SunPosition(utcDate).elon;
+
+  // Moon (ecliptic of date)
+  const moonPos = Astronomy.EclipticGeoMoon(utcDate);
+  const moonLng = ((moonPos.lon % 360) + 360) % 360;
+
+  // Planets (J2000 ecliptic + precession correction)
+  const geoLongitudes: Record<string, number> = {};
+  for (const [name, body] of Object.entries(PLANET_BODIES)) {
+    geoLongitudes[name] = getGeocentricLongitude(body, utcDate, precessionDeg);
+  }
+
+  const { ascendant, midheaven } = calculateAscendantAndMC(
+    jd,
+    latitude,
+    longitude,
+  );
 
   const houses = calculateHouses(ascendant, latitude);
 
+  const makeBody = (name: string, lng: number): BodyPosition => ({
+    name,
+    longitude: lng,
+    sign: getSignFromDegrees(lng),
+    degreesInSign: getDegreesInSign(lng),
+    house: getHouseForLongitude(lng, ascendant),
+    retrograde: false,
+  });
+
   const bodies: Record<string, BodyPosition> = {
-    Sun: {
-      name: 'Sun',
-      longitude: sunLng,
-      sign: getSignFromDegrees(sunLng),
-      degreesInSign: getDegreesInSign(sunLng),
-      house: getHouseForLongitude(sunLng, ascendant),
-      retrograde: false,
-    },
-    Moon: {
-      name: 'Moon',
-      longitude: moonLng,
-      sign: getSignFromDegrees(moonLng),
-      degreesInSign: getDegreesInSign(moonLng),
-      house: getHouseForLongitude(moonLng, ascendant),
-      retrograde: false,
-    },
-    Mercury: {
-      name: 'Mercury',
-      longitude: mercuryLng,
-      sign: getSignFromDegrees(mercuryLng),
-      degreesInSign: getDegreesInSign(mercuryLng),
-      house: getHouseForLongitude(mercuryLng, ascendant),
-      retrograde: false,
-    },
-    Venus: {
-      name: 'Venus',
-      longitude: venusLng,
-      sign: getSignFromDegrees(venusLng),
-      degreesInSign: getDegreesInSign(venusLng),
-      house: getHouseForLongitude(venusLng, ascendant),
-      retrograde: false,
-    },
-    Mars: {
-      name: 'Mars',
-      longitude: marsLng,
-      sign: getSignFromDegrees(marsLng),
-      degreesInSign: getDegreesInSign(marsLng),
-      house: getHouseForLongitude(marsLng, ascendant),
-      retrograde: false,
-    },
-    Jupiter: {
-      name: 'Jupiter',
-      longitude: jupiterLng,
-      sign: getSignFromDegrees(jupiterLng),
-      degreesInSign: getDegreesInSign(jupiterLng),
-      house: getHouseForLongitude(jupiterLng, ascendant),
-      retrograde: false,
-    },
-    Saturn: {
-      name: 'Saturn',
-      longitude: saturnLng,
-      sign: getSignFromDegrees(saturnLng),
-      degreesInSign: getDegreesInSign(saturnLng),
-      house: getHouseForLongitude(saturnLng, ascendant),
-      retrograde: false,
-    },
-    Uranus: {
-      name: 'Uranus',
-      longitude: uranusLng % 360,
-      sign: getSignFromDegrees(uranusLng),
-      degreesInSign: getDegreesInSign(uranusLng),
-      house: getHouseForLongitude(uranusLng, ascendant),
-      retrograde: false,
-    },
-    Neptune: {
-      name: 'Neptune',
-      longitude: neptuneLng % 360,
-      sign: getSignFromDegrees(neptuneLng),
-      degreesInSign: getDegreesInSign(neptuneLng),
-      house: getHouseForLongitude(neptuneLng, ascendant),
-      retrograde: false,
-    },
-    Pluto: {
-      name: 'Pluto',
-      longitude: plutoLng % 360,
-      sign: getSignFromDegrees(plutoLng),
-      degreesInSign: getDegreesInSign(plutoLng),
-      house: getHouseForLongitude(plutoLng, ascendant),
-      retrograde: false,
-    },
+    Sun: makeBody('Sun', sunLng),
+    Moon: makeBody('Moon', moonLng),
+    Mercury: makeBody('Mercury', geoLongitudes['Mercury']),
+    Venus: makeBody('Venus', geoLongitudes['Venus']),
+    Mars: makeBody('Mars', geoLongitudes['Mars']),
+    Jupiter: makeBody('Jupiter', geoLongitudes['Jupiter']),
+    Saturn: makeBody('Saturn', geoLongitudes['Saturn']),
+    Uranus: makeBody('Uranus', geoLongitudes['Uranus']),
+    Neptune: makeBody('Neptune', geoLongitudes['Neptune']),
+    Pluto: makeBody('Pluto', geoLongitudes['Pluto']),
   };
 
   const aspects = calculateAspects(bodies);
