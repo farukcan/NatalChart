@@ -7,6 +7,9 @@
 
 Mobil doğum haritası hesaplama ve görselleştirme uygulaması. Astrolojik hesaplamalar yaparak gezegen pozisyonlarını, evleri ve açları hesaplar ve SVG ile görselleştirir.
 
+<img width="399" height="774" alt="image" src="https://github.com/user-attachments/assets/59bfbe1e-e7e7-4cae-81d4-2f74abb08a4b" />
+
+
 ## 🌟 Özellikler
 
 - **Doğum Haritası Hesaplama**: Güneş, Ay, Merkür, Venüs, Mars, Jüpiter, Satürn, Uranüs, Neptün ve Plüton'un pozisyonları
