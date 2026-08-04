@@ -1,5 +1,9 @@
 # NatalChart
 
+<p align="center">
+  <img src="assets/images/logo.svg" alt="NatalChart logo" width="480" />
+</p>
+
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.4-blue.svg)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-~54.0.10-black.svg)](https://expo.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-~5.9.2-blue.svg)](https://www.typescriptlang.org/)
