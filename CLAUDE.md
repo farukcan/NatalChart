@@ -16,11 +16,12 @@ Natal chart calculator and visualizer. Built with Expo (React Native + Web).
 ## Commands
 
 ```bash
-npm run dev          # Start dev server (all platforms)
-npm run build:web    # Export web build
-npm run lint         # Lint
-npm run typecheck    # Type check
-npm run format:check # Check formatting
+npm run dev               # Start dev server (all platforms)
+npm run build:web         # Export web build
+npm run lint              # Lint
+npm run typecheck         # Type check
+npm run format:check      # Check formatting
+npm run generate:branding # Regenerate icon/splash PNGs and logo SVG
 ```
 
 ## Project Structure
@@ -33,7 +34,12 @@ hooks/           # Custom React hooks
 lib/             # Business logic, utils, types
 contexts/        # React contexts
 assets/          # Images, fonts
+scripts/         # Node tooling (branding generation, etc.)
 ```
+
+## Branding Assets
+
+App icon, favicon, splash, adaptive icon (PNG), and logo (SVG) are generated procedurally by `scripts/generate-branding.mjs` and written to `assets/images/`. Paths are wired in `app.json`. Re-run `npm run generate:branding` after changing the mark design.
 
 ## Cross-Platform Rules (CRITICAL)
 

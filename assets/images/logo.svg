@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="280" viewBox="0 0 960 280">
+  <rect width="960" height="280" fill="#0a0a14"/>
+  <g transform="translate(40, 30)">
+    
+<rect width="220" height="220" fill="#0a0a14"/>
+
+    <defs>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#2563eb" stop-opacity="0.35"/>
+        <stop offset="55%" stop-color="#2563eb" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#0a0a14" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f5c542" stop-opacity="0.9"/>
+        <stop offset="40%" stop-color="#6b9fff" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#2563eb" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+  
+<circle cx="110" cy="110" r="96.14" fill="url(#glow)"/>
+<circle cx="177.97" cy="22.01" r="1.21" fill="#e8e8f4" opacity="0.68"/>
+<circle cx="63.71" cy="28.42" r="0.72" fill="#e8e8f4" opacity="0.57"/>
+<circle cx="20.25" cy="110.18" r="0.86" fill="#e8e8f4" opacity="0.28"/>
+<circle cx="71.02" cy="18.68" r="1.22" fill="#e8e8f4" opacity="0.37"/>
+<circle cx="200.49" cy="62.68" r="0.93" fill="#e8e8f4" opacity="0.73"/>
+<circle cx="194.44" cy="82.03" r="1.30" fill="#e8e8f4" opacity="0.74"/>
+<circle cx="165.39" cy="180.02" r="0.68" fill="#e8e8f4" opacity="0.76"/>
+<circle cx="90.31" cy="204.26" r="1.43" fill="#e8e8f4" opacity="0.40"/>
+<circle cx="143.67" cy="14.75" r="1.46" fill="#e8e8f4" opacity="0.30"/>
+<circle cx="44.30" cy="168.98" r="0.67" fill="#e8e8f4" opacity="0.33"/>
+<circle cx="139.29" cy="22.32" r="1.49" fill="#e8e8f4" opacity="0.42"/>
+<circle cx="187.86" cy="36.48" r="1.50" fill="#e8e8f4" opacity="0.55"/>
+<circle cx="27.29" cy="179.30" r="1.32" fill="#e8e8f4" opacity="0.46"/>
+<circle cx="41.81" cy="201.22" r="1.13" fill="#e8e8f4" opacity="0.52"/>
+<circle cx="200.38" cy="78.96" r="1.07" fill="#e8e8f4" opacity="0.65"/>
+<circle cx="32.72" cy="168.85" r="0.97" fill="#e8e8f4" opacity="0.27"/>
+<circle cx="33.32" cy="158.79" r="1.29" fill="#e8e8f4" opacity="0.38"/>
+<circle cx="48.04" cy="27.44" r="1.01" fill="#e8e8f4" opacity="0.30"/>
+<circle cx="37.61" cy="38.94" r="1.35" fill="#e8e8f4" opacity="0.61"/>
+<circle cx="49.92" cy="35.12" r="1.17" fill="#e8e8f4" opacity="0.73"/>
+<circle cx="110" cy="110" r="83.60" fill="none" stroke="#3a3a6a" stroke-width="2.64"/>
+<circle cx="110" cy="110" r="60.19" fill="none" stroke="#26263a" stroke-width="2.24"/>
+<circle cx="110" cy="110" r="35.11" fill="none" stroke="#3a3a6a" stroke-width="1.98"/>
+<line x1="110.00" y1="41.62" x2="110.00" y2="26.40" stroke="#6b9fff" stroke-width="3.04" stroke-linecap="round" opacity="0.95"/>
+<line x1="144.19" y1="50.78" x2="151.80" y2="37.60" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="169.22" y1="75.81" x2="182.40" y2="68.20" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="178.38" y1="110.00" x2="193.60" y2="110.00" stroke="#6b9fff" stroke-width="3.04" stroke-linecap="round" opacity="0.95"/>
+<line x1="169.22" y1="144.19" x2="182.40" y2="151.80" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="144.19" y1="169.22" x2="151.80" y2="182.40" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="110.00" y1="178.38" x2="110.00" y2="193.60" stroke="#6b9fff" stroke-width="3.04" stroke-linecap="round" opacity="0.95"/>
+<line x1="75.81" y1="169.22" x2="68.20" y2="182.40" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="50.78" y1="144.19" x2="37.60" y2="151.80" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="41.62" y1="110.00" x2="26.40" y2="110.00" stroke="#6b9fff" stroke-width="3.04" stroke-linecap="round" opacity="0.95"/>
+<line x1="50.78" y1="75.81" x2="37.60" y2="68.20" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="75.81" y1="50.78" x2="68.20" y2="37.60" stroke="#3a3a6a" stroke-width="1.85" stroke-linecap="round" opacity="0.65"/>
+<line x1="110.00" y1="193.60" x2="110.00" y2="141.60" stroke="#6b9fff" stroke-width="3.70" stroke-linecap="round"/>
+<circle cx="124.73" cy="64.68" r="3.08" fill="#f5c542"/>
+<circle cx="124.73" cy="64.68" r="6.78" fill="none" stroke="#f5c542" stroke-width="1.19" opacity="0.55"/>
+<circle cx="155.81" cy="96.87" r="3.08" fill="#c8d0e8"/>
+<circle cx="145.41" cy="141.89" r="3.08" fill="#e8e8f4"/>
+<circle cx="89.86" cy="153.19" r="3.08" fill="#e8e8f4"/>
+<circle cx="62.38" cy="111.66" r="3.08" fill="#e8e8f4"/>
+<circle cx="82.67" cy="70.97" r="3.08" fill="#e8e8f4"/>
+<circle cx="110" cy="110" r="29.43" fill="url(#coreGlow)"/>
+<circle cx="110" cy="110" r="13.38" fill="#0a0a14" stroke="#6b9fff" stroke-width="2.64"/>
+<circle cx="110" cy="110" r="5.62" fill="#f5c542"/>
+
+  </g>
+  <g transform="translate(300, 0)">
+    <text x="0" y="155" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="600" fill="#e8e8f4">NatalChart</text>
+    <text x="2" y="200" font-family="ui-sans-serif, system-ui, sans-serif" font-size="22" fill="#6b9fff" letter-spacing="3">NATAL CHART CALCULATOR</text>
+  </g>
+</svg>

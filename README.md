@@ -161,8 +161,19 @@ NatalChart/
 │   ├── astrology.ts       # Astrolojik sabitler ve fonksiyonlar
 │   ├── chartCalculations.ts # Hesaplama algoritmaları
 │   └── storage.ts         # AsyncStorage CRUD işlemleri
-└── assets/                # Statik dosyalar
+├── assets/                # Statik dosyalar (icon/logo dahil)
+└── scripts/               # Araç scriptleri (branding üretimi)
 ```
+
+## 🎨 Marka / Icon Üretimi
+
+Icon, favicon, splash, adaptive icon ve logo prosedürel olarak üretilir:
+
+```bash
+npm run generate:branding
+```
+
+Çıktılar `assets/images/` altına yazılır ve `app.json` üzerinden Expo'ya bağlanır (`icon`, `splash`, `android.adaptiveIcon`, `web.favicon`).
 
 ## 🔐 Güvenlik
 

@@ -8,7 +8,15 @@
       "WebFetch(domain:stackoverflow.com)",
       "WebFetch(domain:reactnative.directory)",
       "Bash(npm info:*)",
-      "WebFetch(domain:snack.expo.dev)"
+      "WebFetch(domain:snack.expo.dev)",
+      "WebSearch",
+      "WebFetch(domain:radixpro.com)",
+      "WebFetch(domain:groups.google.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:www.stjarnhimlen.se)",
+      "WebFetch(domain:www.scribd.com)",
+      "WebFetch(domain:morinus-astrology.com)",
+      "WebFetch(domain:deepwiki.com)"
     ]
   }
 }
